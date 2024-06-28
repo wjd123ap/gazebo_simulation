@@ -21,7 +21,8 @@ rostopic pub /robot_control cleaner_simulation/TorqueTest "$(cat src/cleaner_sim
 ``` or
 ```bash
 rostopic pub /robot_control cleaner_simulation/TorqueTest "left_torque: 0.0
-right_torque: 0.0" -r 30```
+right_torque: 0.0" -r 30
+```
 
 
 -r is a repetition, and 30 is topic's sampling rate
