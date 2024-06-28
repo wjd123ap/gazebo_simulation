@@ -46,7 +46,8 @@ source ~/robot_ws/devel/setup.bash
 ```
 추가하세요.
 
-gazebo gui가 error 발생하면
+gazebo 가 error 발생하면
 ```
 killall -9 gzserver gzclient
 ```
+시뮬레이션에 set_force로 토크주면 시뮬레이션 업데이트 시간만큼만 들어감. 시뮬레이션 업데이트 시간의 기본 설정값은 0.001초이므로 30hz로 주면 잘 안 움직일 수 있음.
