@@ -1,0 +1,14 @@
+<launch>
+  <!-- Gazebo 시뮬레이션 실행 -->
+  <env name="GAZEBO_PLUGIN_PATH" value="${GAZEBO_PLUGIN_PATH}:${CATKIN_DEVEL_PREFIX}/lib"/>
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find cleaner_simulation)/worlds/simulation_env.world"/>
+    <!-- 시뮬레이션에 시간 사용 설정 및 GUI 사용 설정 -->
+    <arg name="paused" value="true"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+    <arg name="verbose" value="true"/>
+  </include>
+</launch>
