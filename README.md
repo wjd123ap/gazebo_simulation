@@ -17,15 +17,16 @@ roslaunch cleaner_simulation simulation_run.launch
 ```
 Turn on the new terminal and give the next command to apply torque to the wheels.
 ```bash
-rostopic pub /robot_control cleaner_simulation/TorqueTest "$(cat src/cleaner_simulation/config/testTorque.yaml)" -r 30
+rostopic pub /robot_control cleaner_simulation/TorqueTest "$(cat src/cleaner_simulation/config/testTorque.yaml)" 
 ``` or
 ```bash
 rostopic pub /robot_control cleaner_simulation/TorqueTest "left_torque: 0.0
-right_torque: 0.0" -r 30
+right_torque: 0.0" 
 ```
 
 
--r is a repetition, and 30 is topic's sampling rate
+
+토픽값으로 바퀴 토크가 바뀜.
 
 ## precautions
 
@@ -50,4 +51,4 @@ gazebo 가 error 발생하면
 ```
 killall -9 gzserver gzclient
 ```
-시뮬레이션에 set_force로 토크주면 시뮬레이션 업데이트 시간만큼만 들어감. 시뮬레이션 업데이트 시간의 기본 설정값은 0.001초이므로 30hz로 주면 잘 안 움직일 수 있음.
+
