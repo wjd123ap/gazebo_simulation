@@ -5,8 +5,10 @@
 #include <sdf/sdf.hh>
 #include <ros/ros.h>
 #include <std_msgs/String.h>
+#include <geometry_msgs/PoseStamped.h>
 #include "cleaner_simulation/TorqueTest.h"
-#include <cmath> 
+#include <cmath>
+#include <sensor_msgs/JointState.h>
 namespace gazebo
 {
   class ModelControlPlugin : public ModelPlugin
@@ -31,24 +33,30 @@ namespace gazebo
         {
         int argc = 0;
         char **argv = NULL;
-        ros::init(argc, argv, "gazebo_client", ros::init_options::NoSigintHandler);
+        ros::init(argc, argv, "robot_cleaner", ros::init_options::NoSigintHandler);
         }
             // 모든 조인트 불러오기
         this->model = _model;
-        double timer_interval = 0.05;
-        this->rosNode.reset(new ros::NodeHandle("gazebo_client"));
+        double odometry_timer_interval = (1.0)/200;
+
+        this->rosNode.reset(new ros::NodeHandle("robot_cleaner"));
 
         this->right_wheel = _model->GetJoint("wheel_rear_right_spin");
 
 
         this->left_wheel = _model->GetJoint("wheel_rear_left_spin");
+        this->left_torque = 0;
+        this->right_torque = 0;
+        this->chassis = _model->GetLink("chassis");
+        
 
-
-        // this->left_wheel = this->model->GetJoint(this->left_wheel_jointName);
-        // this->right_wheel = this->model->GetJoint(this->right_wheel_jointName);
         std::cout << " Joint Name: " << this->right_wheel->GetName() << ", Type: " << this->right_wheel->GetType() << std::endl;
-        this->Sub = this->rosNode->subscribe("/robot_control", 10, &ModelControlPlugin::OnRosMsg, this);
-        timer = rosNode->createTimer(ros::Duration(timer_interval), &ModelControlPlugin::OnTimer, this);
+        this->torque_Subscriber = this->rosNode->subscribe("/robot_control", 10, &ModelControlPlugin::OnRosMsg, this);
+        this->pose_Publisher = this->rosNode->advertise<geometry_msgs::PoseStamped>("chassis_pose", 1000);
+        this->wheelstate_Publisher = this->rosNode->advertise<sensor_msgs::JointState>("wheel_state", 1000);
+        odometry_timer = rosNode->createTimer(ros::Duration(odometry_timer_interval), &ModelControlPlugin::Odometry_update, this);
+        this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+          std::bind(&ModelControlPlugin::OnWheelState, this));
         ROS_INFO("RobotControlPlugin loaded");
 
 
@@ -56,17 +64,32 @@ namespace gazebo
 
     void OnRosMsg(const cleaner_simulation::TorqueTestConstPtr &msg)
     {
-      
-        // ROS_INFO("MOVE");
-        this->left_wheel->SetForce(0, msg->left_torque);
-        this->right_wheel->SetForce(0, msg->right_torque);
-        
+        this->left_torque=msg->left_torque;
+        this->right_torque=msg->right_torque;
 
     }
 
 
-    void OnTimer(const ros::TimerEvent&)
+    void Odometry_update(const ros::TimerEvent&)
     {
+      geometry_msgs::PoseStamped poseMsg;
+      poseMsg.header.frame_id = "world";
+      poseMsg.header.stamp = ros::Time::now();
+      poseMsg.pose.position.x = this->chassis->WorldPose().Pos().X();
+      poseMsg.pose.position.y = this->chassis->WorldPose().Pos().Y();
+      poseMsg.pose.position.z = this->chassis->WorldPose().Pos().Z();
+      poseMsg.pose.orientation.w = this->chassis->WorldPose().Rot().W();
+      poseMsg.pose.orientation.x = this->chassis->WorldPose().Rot().X();
+      poseMsg.pose.orientation.y = this->chassis->WorldPose().Rot().Y();
+      poseMsg.pose.orientation.z = this->chassis->WorldPose().Rot().Z();
+      pose_Publisher.publish(poseMsg);
+    }
+    
+    void OnWheelState()
+    {
+        this->left_wheel->SetForce(0, msg->left_torque);
+        this->right_wheel->SetForce(0, msg->right_torque);
+        sensor_msgs::JointState wheelMsgs;
         // 조인트 상태 읽기
         double left_angle = this->left_wheel->Position(0); // 조인트 각도 (라디안)
         double normalized_left_angle = std::fmod(left_angle, 2 * M_PI);
@@ -81,22 +104,42 @@ namespace gazebo
             normalized_right_angle += 2 * M_PI;  // 음수 각도를 양수로 조정
         }
         double right_angvel = this->right_wheel->GetVelocity(0); // 조인트 각속도 (라디안/초)
-        // 로그에 상태 출력
-        gzmsg << "left_wheel_angle: " << normalized_left_angle  << ", left_angvel: " << left_angvel<<std::endl;
-        gzmsg << "right_wheel_angle: " << normalized_right_angle  << ", right_angvel: " << right_angvel<<std::endl;
+        wheelMsgs.header.stamp = ros::Time::now();
+        wheelMsgs.header.frame_id = "chassis";
+        wheelMsgs.name.push_back("left_wheel");
+        wheelMsgs.name.push_back("right_wheel");
+        // wheelpos (radian)
+        wheelMsgs.position.push_back(left_angle);
+        wheelMsgs.position.push_back(right_angle);
+        // wheel_velocity
+        wheelMsgs.velocity.push_back(left_angvel);
+        wheelMsgs.velocity.push_back(right_angvel);
+        // wheeltorque
+        wheelMsgs.effort.push_back(this->left_torque);
+        wheelMsgs.effort.push_back(this->right_torque);
+
+        wheelstate_Publisher.publish(wheelMsgs);
+
+        // // 로그에 상태 출력
+        // gzmsg << "left_wheel_angle: " << normalized_left_angle  << ", left_angvel: " << left_angvel<<std::endl;
+        // gzmsg << "right_wheel_angle: " << normalized_right_angle  << ", right_angvel: " << right_angvel<<std::endl;
 
     }
-
   private:
     std::unique_ptr<ros::NodeHandle> rosNode;
     event::ConnectionPtr updateConnection;
     physics::ModelPtr model;
     physics::JointPtr left_wheel;
     physics::JointPtr right_wheel;
+    physics::LinkPtr chassis;
     std::string right_wheel_jointName;
     std::string left_wheel_jointName;
-    ros::Subscriber Sub;
-    ros::Timer timer;
+    ros::Subscriber torque_Subscriber;
+    ros::Publisher pose_Publisher;
+    ros::Publisher wheelstate_Publisher;
+    ros::Timer odometry_timer;
+    double left_torque;
+    double right_torque;
   };
 
   GZ_REGISTER_MODEL_PLUGIN(ModelControlPlugin)

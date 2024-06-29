@@ -2,7 +2,7 @@
 #include <gazebo/physics/physics.hh>
 #include <ros/ros.h>
 #include <std_msgs/String.h>
-#include "cleaner_simulation/TorqueTest.h"
+
 namespace gazebo
 {
   class WorldControlPlugin : public WorldPlugin
@@ -15,9 +15,9 @@ namespace gazebo
       {
         int argc = 0;
         char **argv = NULL;
-        ros::init(argc, argv, "gazebo_client", ros::init_options::NoSigintHandler);
+        ros::init(argc, argv, "gazebo_world", ros::init_options::NoSigintHandler);
       }
-      this->rosNode.reset(new ros::NodeHandle("gazebo_client"));
+      this->rosNode.reset(new ros::NodeHandle("gazebo_world"));
 
       ros::Subscriber sub = this->rosNode->subscribe("/world_control", 10, &WorldControlPlugin::OnRosMsg, this);
       ROS_INFO("WorldControlPlugin loaded");
