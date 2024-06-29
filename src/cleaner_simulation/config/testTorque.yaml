@@ -1,2 +1,2 @@
-left_torque: 10.0
-right_torque: 10.0
+left_torque: 0.1
+right_torque: 0.1

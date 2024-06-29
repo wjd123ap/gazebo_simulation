@@ -87,8 +87,8 @@ namespace gazebo
     
     void OnWheelState()
     {
-        this->left_wheel->SetForce(0, msg->left_torque);
-        this->right_wheel->SetForce(0, msg->right_torque);
+        this->left_wheel->SetForce(0, this->left_torque);
+        this->right_wheel->SetForce(0, this->right_torque);
         sensor_msgs::JointState wheelMsgs;
         // 조인트 상태 읽기
         double left_angle = this->left_wheel->Position(0); // 조인트 각도 (라디안)
