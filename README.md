@@ -6,8 +6,8 @@
 
 You can install the project by entering the command below into the terminal:
 ```bash
-git clone https://github.com/wjd123ap/robot_cleaner.git
-cd ./robot_cleaner
+git clone https://github.com/wjd123ap/gazebo_simulation.git
+cd ./gazebo_simulation
 catkin_make
 ```
 ## How to execute 
