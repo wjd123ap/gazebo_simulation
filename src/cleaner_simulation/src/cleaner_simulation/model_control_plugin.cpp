@@ -8,7 +8,9 @@
 #include <geometry_msgs/PoseStamped.h>
 #include "cleaner_simulation/TorqueTest.h"
 #include <cmath>
+#include <algorithm>
 #include <sensor_msgs/JointState.h>
+using namespace std;
 namespace gazebo
 {
   class ModelControlPlugin : public ModelPlugin
@@ -87,8 +89,7 @@ namespace gazebo
     
     void OnWheelState()
     {
-        this->left_wheel->SetForce(0, this->left_torque);
-        this->right_wheel->SetForce(0, this->right_torque);
+
         sensor_msgs::JointState wheelMsgs;
         // 조인트 상태 읽기
         double left_angle = this->left_wheel->Position(0); // 조인트 각도 (라디안)
@@ -114,6 +115,27 @@ namespace gazebo
         // wheel_velocity
         wheelMsgs.velocity.push_back(left_angvel);
         wheelMsgs.velocity.push_back(right_angvel);
+ 
+
+        double left_torque_sign = std::copysign(1.0, this->left_torque); 
+        double right_torque_sign = std::copysign(1.0, this->right_torque); 
+        if (abs(this->left_torque)>0.0){
+          double left_torque=max((-1/32.5)*((abs(left_angvel*60)/(2*M_PI))-77.5),0.0);
+
+          this->left_torque=min(left_torque,abs(this->left_torque));
+
+          this->left_torque=this->left_torque*left_torque_sign;
+        }
+        if (abs(this->right_torque)>0.0){
+          double right_torque=max((-1/32.5)*((abs(right_angvel*60)/(2*M_PI))-77.5),0.0);
+          this->right_torque=min(right_torque,abs(this->right_torque));
+          this->right_torque=this->right_torque*right_torque_sign;
+        }
+        // gzmsg << "left_torque: " << this->left_torque  << ", left_angvel: " << left_angvel<<std::endl;
+        // gzmsg << "right_torque: " << this->right_torque    << ", right_angvel: " << right_angvel<<std::endl;
+
+        this->left_wheel->SetForce(0, this->left_torque);
+        this->right_wheel->SetForce(0, this->right_torque);
         // wheeltorque
         wheelMsgs.effort.push_back(this->left_torque);
         wheelMsgs.effort.push_back(this->right_torque);
