@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <sensor_msgs/JointState.h>
 using namespace std;
+double stall_torque=(77.5/32.5);
 namespace gazebo
 {
   class ModelControlPlugin : public ModelPlugin
@@ -119,20 +120,35 @@ namespace gazebo
 
         double left_torque_sign = std::copysign(1.0, this->left_torque); 
         double right_torque_sign = std::copysign(1.0, this->right_torque); 
-        if (abs(this->left_torque)>0.0){
+        double left_angvel_sign = std::copysign(1.0, left_angvel); 
+        double right_angvel_sign = std::copysign(1.0, right_angvel); 
+        if (left_torque_sign*left_angvel_sign>0){
           double left_torque=max((-1/32.5)*((abs(left_angvel*60)/(2*M_PI))-77.5),0.0);
-
+          // gzmsg << "left_torque1: " << this->left_torque <<std::endl;
           this->left_torque=min(left_torque,abs(this->left_torque));
+          this->left_torque=(this->left_torque)*left_torque_sign;
+        }
+        else{
+          this->left_torque=left_torque_sign*min(stall_torque,abs(this->left_torque));
+        }       
+          // gzmsg << "left_torque: " << this->left_torque  << ", left_angvel: " << left_angvel<<std::endl;
 
-          this->left_torque=this->left_torque*left_torque_sign;
-        }
-        if (abs(this->right_torque)>0.0){
+        if (right_torque_sign*right_angvel_sign>0){
           double right_torque=max((-1/32.5)*((abs(right_angvel*60)/(2*M_PI))-77.5),0.0);
+          // gzmsg << "right_torque1: " << this->right_torque <<std::endl;
+
           this->right_torque=min(right_torque,abs(this->right_torque));
-          this->right_torque=this->right_torque*right_torque_sign;
+          this->right_torque=(this->right_torque)*right_torque_sign;
         }
-        // gzmsg << "left_torque: " << this->left_torque  << ", left_angvel: " << left_angvel<<std::endl;
-        // gzmsg << "right_torque: " << this->right_torque    << ", right_angvel: " << right_angvel<<std::endl;
+        else{
+          this->right_torque=right_torque_sign*min(stall_torque,abs(this->right_torque));
+        }        
+          // gzmsg << "right_torque: " << this->right_torque    << ", right_angvel: " << right_angvel<<std::endl;
+
+        this->left_wheel->SetForce(0, this->left_torque);
+        this->right_wheel->SetForce(0, this->right_torque);
+
+
 
         this->left_wheel->SetForce(0, this->left_torque);
         this->right_wheel->SetForce(0, this->right_torque);
@@ -142,7 +158,7 @@ namespace gazebo
 
         wheelstate_Publisher.publish(wheelMsgs);
 
-        // // 로그에 상태 출력
+        // // // 로그에 상태 출력
         // gzmsg << "left_wheel_angle: " << normalized_left_angle  << ", left_angvel: " << left_angvel<<std::endl;
         // gzmsg << "right_wheel_angle: " << normalized_right_angle  << ", right_angvel: " << right_angvel<<std::endl;
 

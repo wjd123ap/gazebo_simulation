@@ -44,7 +44,7 @@
             </script>
           </material>
         </visual>
-        <self_collide>0</self_collide>
+
         <enable_wind>0</enable_wind>
         <kinematic>0</kinematic>
       </link>
@@ -641,7 +641,7 @@
           </script>
         </material>
       </visual>
-      <self_collide>0</self_collide>
+
       <enable_wind>0</enable_wind>
     </link>
     <joint name="steer_wheel_spin1" type="revolute">
@@ -684,7 +684,7 @@
       <collision name="collision">
         <geometry>
           <cylinder>
-            <radius>0.0125</radius>
+            <radius>0.0124</radius>
             <length>0.006</length>
           </cylinder>
         </geometry>
@@ -693,7 +693,7 @@
       <visual name="visual">
         <geometry>
           <cylinder>
-            <radius>0.0125</radius>
+            <radius>0.0124</radius>
             <length>0.006</length>
           </cylinder>
         </geometry>
@@ -704,7 +704,7 @@
           </script>
         </material>
       </visual>
-      <self_collide>0</self_collide>
+
       <enable_wind>0</enable_wind>
     </link>
     
@@ -737,7 +737,7 @@
       <collision name="collision">
         <geometry>
           <cylinder>
-            <radius>0.0125</radius>
+            <radius>0.0124</radius>
             <length>0.006</length>
           </cylinder>
         </geometry>
@@ -746,7 +746,7 @@
       <visual name="visual">
         <geometry>
           <cylinder>
-            <radius>0.0125</radius>
+            <radius>0.0124</radius>
             <length>0.006</length>
           </cylinder>
         </geometry>
@@ -757,7 +757,6 @@
           </script>
         </material>
       </visual>
-      <self_collide>0</self_collide>
       <enable_wind>0</enable_wind>
     </link>
 
@@ -780,9 +779,9 @@
       <inertial>
         <mass>0.02</mass>
         <inertia>
-          <ixx>0.000208333</ixx>
-          <iyy>0.000208333</iyy>
-          <izz>0.000208333</izz>
+          <ixx>6.666666666666667e-07</ixx>
+          <iyy>6.666666666666667e-07</iyy>
+          <izz>6.666666666666667e-07</izz>
           <ixy>0</ixy>
           <ixz>0</ixz>
           <iyz>0</iyz>
@@ -822,7 +821,7 @@
           </script>
         </material>
       </visual>
-      <self_collide>0</self_collide>
+
       <enable_wind>0</enable_wind>
       <kinematic>0</kinematic>
     </link>
@@ -837,9 +836,9 @@
             <upper>0.015</upper>
           </limit>
           <dynamics>
-            <damping>5</damping>
-            <spring_stiffness>20</spring_stiffness>
-            <spring_reference>0.015</spring_reference>
+            <damping>2</damping>
+            <spring_stiffness>5</spring_stiffness>
+            <spring_reference>0.0</spring_reference>
           </dynamics>
         </axis>
         <physics>
@@ -879,12 +878,15 @@
               <ode/>
             </contact>
             <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
+          <friction>
+            <ode>
+              <mu>100000.0</mu>
+              <mu2>100000.0</mu2>
+              <fdir1>0 0 0</fdir1>
+              <slip1>0</slip1>
+              <slip2>0</slip2>
+            </ode>
+          </friction>
           </surface>
         </collision>
         <visual name='visual'>
@@ -901,7 +903,7 @@
             </script>
           </material>
         </visual>
-        <self_collide>0</self_collide>
+
         <enable_wind>0</enable_wind>
         <kinematic>0</kinematic>
       </link>
@@ -929,9 +931,9 @@
         <inertial>
           <mass>0.02</mass>
           <inertia>
-            <ixx>0.000208333</ixx>
-            <iyy>0.000208333</iyy>
-            <izz>0.000208333</izz>
+            <ixx>6.666666666666667e-07</ixx>
+            <iyy>6.666666666666667e-07</iyy>
+            <izz>6.666666666666667e-07</izz>
             <ixy>0</ixy>
             <ixz>0</ixz>
             <iyz>0</iyz>
@@ -971,7 +973,7 @@
             </script>
           </material>
         </visual>
-        <self_collide>0</self_collide>
+
         <enable_wind>0</enable_wind>
         <kinematic>0</kinematic>
       </link>
@@ -985,9 +987,9 @@
             <upper>0.015</upper>
           </limit>
           <dynamics>
-            <damping>5</damping>
-            <spring_stiffness>20</spring_stiffness>
-            <spring_reference>0.015</spring_reference>
+            <damping>2</damping>
+            <spring_stiffness>5</spring_stiffness>
+            <spring_reference>0.0</spring_reference>
           </dynamics>
         </axis>
         <physics>
@@ -1028,10 +1030,13 @@
             </contact>
             <bounce/>
             <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
+              <ode>
+                <mu>100000.0</mu>
+                <mu2>100000.0</mu2>
+                <fdir1>0 0 0</fdir1>
+                <slip1>0</slip1>
+                <slip2>0</slip2>
+              </ode>
             </friction>
           </surface>
         </collision>
@@ -1049,13 +1054,13 @@
             </script>
           </material>
         </visual>
-        <self_collide>0</self_collide>
+
         <enable_wind>0</enable_wind>
         <kinematic>0</kinematic>
       </link>
       <joint name='wheel_rear_left_spin' type='revolute'>
         <parent>susp_rear_left</parent>
-        <!-- <parent>chassis</parent> -->
+
         <child>wheel_rear_left</child>
 
         <axis>
