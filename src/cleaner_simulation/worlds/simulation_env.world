@@ -354,7 +354,7 @@
         <collision name='collision'>
         <geometry>
             <mesh>
-              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/door_frame.stl</uri>
+              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/door.stl</uri>
               <scale>0.001 0.001 0.001</scale>
             </mesh>
           </geometry>
@@ -654,8 +654,8 @@
           <upper>1e+16</upper>
         </limit>
       </axis>
-
     </joint>
+
     <joint name="steer_wheel_spin2" type="revolute">
       <parent>chassis</parent>
       <child>steer_wheel</child>
@@ -719,6 +719,8 @@
         </limit>
       </axis>
     </joint>
+
+
     <link name="front_wheel_right">
       <pose>0.14 0.131 0.0125  -1.5707963267948966 0 0</pose>
       <inertial>
@@ -774,7 +776,7 @@
 
 
     <link name='susp_rear_right'>
-      <pose>0 -0.114 0.0375 -1.5708 0 0</pose>
+      <pose>0 -0.114 0.0375 0 0 0</pose>
       <inertial>
         <mass>0.02</mass>
         <inertia>
@@ -835,9 +837,9 @@
             <upper>0.015</upper>
           </limit>
           <dynamics>
-            <damping>100</damping>
-            <spring_stiffness>250</spring_stiffness>
-            <spring_reference>0.03</spring_reference>
+            <damping>5</damping>
+            <spring_stiffness>20</spring_stiffness>
+            <spring_reference>0.015</spring_reference>
           </dynamics>
         </axis>
         <physics>
@@ -851,7 +853,7 @@
         </physics>
       </joint>
       <link name='wheel_rear_right'>
-        <pose>0 -0.114 0.0375 -1.5708 0 0</pose>
+        <pose>0 -0.114 0.0375 -1.5707963267948966 0 0</pose>
         <inertial>
           <mass>0.046</mass>
           <inertia>
@@ -905,6 +907,7 @@
       </link>
       <joint name='wheel_rear_right_spin' type='revolute'>
         <parent>susp_rear_right</parent>
+        <!-- <parent>chassis</parent> -->
         <child>wheel_rear_right</child>
         <axis>
           <xyz>0 0 1</xyz>
@@ -922,7 +925,7 @@
 
 
       <link name='susp_rear_left'>
-        <pose>0 0.114 0.0375 -1.5708 0 0</pose>
+        <pose>0 0.114 0.0375 0 0 0</pose>
         <inertial>
           <mass>0.02</mass>
           <inertia>
@@ -982,9 +985,9 @@
             <upper>0.015</upper>
           </limit>
           <dynamics>
-            <damping>100</damping>
-            <spring_stiffness>250</spring_stiffness>
-            <spring_reference>0.03</spring_reference>
+            <damping>5</damping>
+            <spring_stiffness>20</spring_stiffness>
+            <spring_reference>0.015</spring_reference>
           </dynamics>
         </axis>
         <physics>
@@ -998,7 +1001,7 @@
         </physics>
       </joint>
       <link name='wheel_rear_left'>
-        <pose>0 0.114 0.0375 -1.5708 0 0</pose>
+        <pose>0 0.114 0.0375 -1.5707963267948966 0 0</pose>
         <inertial>
           <mass>0.046</mass>
           <inertia>
@@ -1052,7 +1055,9 @@
       </link>
       <joint name='wheel_rear_left_spin' type='revolute'>
         <parent>susp_rear_left</parent>
+        <!-- <parent>chassis</parent> -->
         <child>wheel_rear_left</child>
+
         <axis>
           <xyz>0 0 1</xyz>
           <limit>
