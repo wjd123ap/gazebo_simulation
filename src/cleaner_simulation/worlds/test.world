@@ -745,7 +745,7 @@
             <upper>0</upper>
           </limit>
           <dynamics>
-            <friction>0.005</friction>
+            <friction>0.01</friction>
           </dynamics>
       </axis>
     </joint>
@@ -826,7 +826,7 @@
             <upper>0</upper>
           </limit>
           <dynamics>
-            <friction>0.005</friction>
+            <friction>0.01</friction>
           </dynamics>
       </axis>
     </joint>
@@ -906,9 +906,10 @@
             <upper>0</upper>
           </limit>
           <dynamics>
-            <damping>20</damping>
-            <spring_stiffness>500</spring_stiffness>
-            <spring_reference>0.0225</spring_reference>
+            <friction>1</friction>
+            <damping>1</damping>
+            <spring_stiffness>200</spring_stiffness>
+            <spring_reference>0.047</spring_reference>
           </dynamics>
         </axis>
         <physics>
@@ -1000,7 +1001,7 @@
             <upper>0</upper>
           </limit>
           <dynamics>
-            <friction>0.005</friction>
+            <friction>0.01</friction>
           </dynamics>
         </axis>
       </joint>
@@ -1069,9 +1070,10 @@
           </limit>
 
           <dynamics>
-            <damping>20</damping>
-            <spring_stiffness>400</spring_stiffness>
-            <spring_reference>0.0225</spring_reference>
+            <friction>1</friction>
+            <damping>1</damping>
+            <spring_stiffness>200</spring_stiffness>
+            <spring_reference>0.047</spring_reference>
           </dynamics>
         </axis>
         <limit>
@@ -1091,9 +1093,7 @@
               <cfm>0</cfm>
               <erp>0.1</erp>
             </limit>
-
           </ode>
-
         </physics>
       </joint>
       <link name='wheel_rear_left'>
@@ -1148,7 +1148,6 @@
             </script>
           </material>
         </visual>
-
         <enable_wind>0</enable_wind>
         <kinematic>0</kinematic>
       </link>
@@ -1172,15 +1171,11 @@
             <upper>0</upper>
           </limit>
           <dynamics>
-            <friction>0.005</friction>
+            <friction>0.01</friction>
           </dynamics>
         </axis>
       </joint>
       <plugin name='cleaner' filename='libmodel_control_plugin.so'/>
     </model>
-
-
-
-
   </world>
 </sdf>
