@@ -451,14 +451,14 @@
       <static>0</static>
       <link name='chassis'>
         <self_collide>0</self_collide>
-        <pose>0 0 0.025 0 0 0</pose>
+        <pose>0 0 0.075 0 0 0</pose>
         <inertial>
-          <pose>0 0 0.02 0 0 0</pose>
+          <pose>0 0 0 0 0 0</pose>
           <mass>4</mass>
           <inertia>
-            <ixx> 0.024399999999999998</ixx>
-            <iyy>0.024399999999999998</iyy>
-            <izz>0.039200000000000006</izz>
+            <ixx> 0.019466666666666667</ixx>
+            <iyy> 0.03333333333333333</iyy>
+            <izz> 0.04613333333333333</izz>
             <ixy>0</ixy>
             <ixz>0</ixz>
             <iyz>0</iyz>
@@ -466,12 +466,15 @@
         </inertial>
         <collision name='collision'>
           <geometry>
-            <mesh>
+            <!-- <mesh>
               <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/robot_chassis.stl</uri>
               <scale>0.001 0.001 0.001</scale>
-            </mesh>
+            </mesh> -->
+            <box>
+              <size>0.3 0.22 0.1</size>
+            </box>
           </geometry>
-          <max_contacts>10</max_contacts>
+          <max_contacts>20</max_contacts>
           <surface>
             <contact>
               <ode/>
@@ -487,10 +490,13 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh>
+            <!-- <mesh>
               <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/robot_chassis.stl</uri>
               <scale>0.001 0.001 0.001</scale>
-            </mesh>
+            </mesh> -->
+            <box>
+              <size>0.3 0.22 0.1</size>
+            </box>
           </geometry>
           <material>
             <script>
@@ -502,7 +508,7 @@
 
 
 
-      <visual name="sensor_visual">
+      <!-- <visual name="sensor_visual">
         <pose>0.00 0 0.11 0 0 0</pose>
         <geometry>
           <mesh>
@@ -603,11 +609,11 @@
         <initialOrientationAsReference>false</initialOrientationAsReference>
         </plugin>
         <always_on>1</always_on>
-      </sensor>
+      </sensor> -->
       </link>
 
-    <link name="steer_wheel">
-          <self_collide>0</self_collide>
+    <!-- <link name="steer_wheel">
+      <self_collide>0</self_collide>
       <pose>-0.11 0 0.012  -1.5707963267948966 0 0</pose>
       <inertial>
         <mass>0.025</mass>
@@ -661,16 +667,16 @@
       <axis2>
         <xyz>0 0 1</xyz>
       </axis2>
-    </joint>
+    </joint> -->
 
     <link name="front_wheel_left">
-      <pose>0.14 -0.131 0.0125  1.5707963267948966 0 0</pose>
+      <pose>0.1 -0.113 0.03  1.5707963267948966 0 0</pose>
       <inertial>
         <mass>0.02</mass>
         <inertia>
-          <ixx>8.412500000000005e-07</ixx>
-          <iyy>8.412500000000005e-07</iyy>
-          <izz>1.562500000000001e-06</izz>
+          <ixx>4.5599999999999995e-06</ixx>
+          <iyy>4.5599999999999995e-06</iyy>
+          <izz>9e-06</izz>
           <ixy>0</ixy>
           <ixz>0</ixz>
           <iyz>0</iyz>
@@ -679,7 +685,7 @@
       <collision name="collision">
         <geometry>
           <cylinder>
-            <radius>0.0125</radius>
+            <radius>0.03</radius>
             <length>0.006</length>
           </cylinder>
         </geometry>
@@ -704,7 +710,7 @@
       <visual name="visual">
         <geometry>
           <cylinder>
-            <radius>0.0125</radius>
+            <radius>0.03</radius>
             <length>0.006</length>
           </cylinder>
         </geometry>
@@ -724,22 +730,35 @@
       <child>front_wheel_left</child>
       <axis>
         <xyz>0 0 1</xyz>
-        <limit>
-          <lower>-1e+16</lower>
-          <upper>1e+16</upper>
-        </limit>
+          <limit>
+            <lower>-1e+16</lower>
+            <upper>1e+16</upper>
+          </limit>
+          <limit>
+            <xyz>1 0 0</xyz> <!-- X 축 제한 -->
+            <lower>0</lower>
+            <upper>0</upper>
+          </limit>
+          <limit>
+            <xyz>0 1 0</xyz> <!-- Y 축 제한 -->
+            <lower>0</lower>
+            <upper>0</upper>
+          </limit>
+          <dynamics>
+            <friction>0.005</friction>
+          </dynamics>
       </axis>
     </joint>
 
 
     <link name="front_wheel_right">
-      <pose>0.14 0.131 0.0125  -1.5707963267948966 0 0</pose>
+      <pose>0.1 0.113 0.03  -1.5707963267948966 0 0</pose>
       <inertial>
         <mass>0.02</mass>
         <inertia>
-          <ixx>8.412500000000005e-07</ixx>
-          <iyy>8.412500000000005e-07</iyy>
-          <izz>1.562500000000001e-06</izz>
+          <ixx>4.5599999999999995e-06</ixx>
+          <iyy>4.5599999999999995e-06</iyy>
+          <izz>9e-06</izz>
           <ixy>0</ixy>
           <ixz>0</ixz>
           <iyz>0</iyz>
@@ -748,7 +767,7 @@
       <collision name="collision">
         <geometry>
           <cylinder>
-            <radius>0.0125</radius>
+            <radius>0.03</radius>
             <length>0.006</length>
           </cylinder>
         </geometry>
@@ -773,7 +792,7 @@
       <visual name="visual">
         <geometry>
           <cylinder>
-            <radius>0.0125</radius>
+            <radius>0.03</radius>
             <length>0.006</length>
           </cylinder>
         </geometry>
@@ -792,17 +811,30 @@
       <child>front_wheel_right</child>
       <axis>
         <xyz>0 0 1</xyz>
-        <limit>
-          <lower>-1e+16</lower>
-          <upper>1e+16</upper>
-        </limit>
+          <limit>
+            <lower>-1e+16</lower>
+            <upper>1e+16</upper>
+          </limit>
+          <limit>
+            <xyz>1 0 0</xyz> <!-- X 축 제한 -->
+            <lower>0</lower>
+            <upper>0</upper>
+          </limit>
+          <limit>
+            <xyz>0 1 0</xyz> <!-- Y 축 제한 -->
+            <lower>0</lower>
+            <upper>0</upper>
+          </limit>
+          <dynamics>
+            <friction>0.005</friction>
+          </dynamics>
       </axis>
     </joint>
 
 
 
     <link name='susp_rear_right'>
-      <pose>0 -0.114 0.0375 0 0 0</pose>
+      <pose>-0.1 -0.12 0.0375 0 0 0</pose>
       <inertial>
         <mass>0.02</mass>
         <inertia>
@@ -859,13 +891,24 @@
         <axis>
           <xyz>0 0 -1</xyz>
           <limit>
-            <lower>-0.005</lower>
-            <upper>0.005</upper>
+            <lower>-0.03</lower>
+            <upper>0.03</upper>
+          </limit>
+
+          <limit>
+            <xyz>1 0 0</xyz> <!-- X 축 제한 -->
+            <lower>0</lower>
+            <upper>0</upper>
+          </limit>
+          <limit>
+            <xyz>0 1 0</xyz> <!-- Y 축 제한 -->
+            <lower>0</lower>
+            <upper>0</upper>
           </limit>
           <dynamics>
             <damping>20</damping>
-            <spring_stiffness>50</spring_stiffness>
-            <spring_reference>0.003</spring_reference>
+            <spring_stiffness>500</spring_stiffness>
+            <spring_reference>0.0225</spring_reference>
           </dynamics>
         </axis>
         <physics>
@@ -873,18 +916,20 @@
             <implicit_spring_damper>1</implicit_spring_damper>
             <limit>
               <cfm>0</cfm>
-              <erp>0.2</erp>
+              <erp>0.1</erp>
             </limit>
+
           </ode>
+
         </physics>
       </joint>
       <link name='wheel_rear_right'>
-        <pose>0 -0.114 0.0375 -1.5707963267948966 0 0</pose>
+        <pose>-0.1 -0.12 0.0375 -1.5707963267948966 0 0</pose>
         <inertial>
           <mass>0.046</mass>
           <inertia>
-            <ixx>1.7279708333333335e-05</ixx>
-            <iyy> 1.7279708333333335e-05</iyy>
+            <ixx>1.7705208333333333e-05</ixx>
+            <iyy> 1.7705208333333333e-05</iyy>
             <izz>3.234375e-05</izz>
             <ixy>0</ixy>
             <ixz>0</ixz>
@@ -896,7 +941,7 @@
           <geometry>
             <cylinder>
               <radius>0.0375</radius>
-              <length>0.017</length>
+              <length>0.02</length>
             </cylinder>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -920,7 +965,7 @@
           <geometry>
             <cylinder>
               <radius>0.0375</radius>
-              <length>0.017</length>
+              <length>0.02</length>
             </cylinder>
           </geometry>
           <material>
@@ -944,9 +989,18 @@
             <lower>-1e+16</lower>
             <upper>1e+16</upper>
           </limit>
+          <limit>
+            <xyz>1 0 0</xyz> <!-- X 축 제한 -->
+            <lower>0</lower>
+            <upper>0</upper>
+          </limit>
+          <limit>
+            <xyz>0 1 0</xyz> <!-- Y 축 제한 -->
+            <lower>0</lower>
+            <upper>0</upper>
+          </limit>
           <dynamics>
-            <spring_reference>0</spring_reference>
-            <spring_stiffness>0</spring_stiffness>
+            <friction>0.005</friction>
           </dynamics>
         </axis>
       </joint>
@@ -954,7 +1008,7 @@
 
 
       <link name='susp_rear_left'>
-        <pose>0 0.114 0.0375 0 0 0</pose>
+        <pose>-0.1 0.12 0.0375 0 0 0</pose>
         <inertial>
           <mass>0.02</mass>
           <inertia>
@@ -1010,32 +1064,45 @@
         <axis>
           <xyz>0 0 -1</xyz>
           <limit>
-            <lower>-0.005</lower>
-            <upper>0.005</upper>
+            <lower>-0.03</lower>
+            <upper>0.03</upper>
           </limit>
+
           <dynamics>
             <damping>20</damping>
-            <spring_stiffness>50</spring_stiffness>
-            <spring_reference>0.003</spring_reference>
+            <spring_stiffness>400</spring_stiffness>
+            <spring_reference>0.0225</spring_reference>
           </dynamics>
         </axis>
+        <limit>
+          <xyz>1 0 0</xyz> <!-- X 축 제한 -->
+          <lower>0</lower>
+          <upper>0</upper>
+        </limit>
+        <limit>
+          <xyz>0 1 0</xyz> <!-- Y 축 제한 -->
+          <lower>0</lower>
+          <upper>0</upper>
+        </limit>
         <physics>
           <ode>
             <implicit_spring_damper>1</implicit_spring_damper>
             <limit>
               <cfm>0</cfm>
-              <erp>0.2</erp>
+              <erp>0.1</erp>
             </limit>
+
           </ode>
+
         </physics>
       </joint>
       <link name='wheel_rear_left'>
-        <pose>0 0.114 0.0375 1.5707963267948966 0 0</pose>
+        <pose>-0.1 0.12 0.0375 1.5707963267948966 0 0</pose>
         <inertial>
           <mass>0.046</mass>
           <inertia>
-            <ixx>1.7279708333333335e-05</ixx>
-            <iyy> 1.7279708333333335e-05</iyy>
+            <ixx>1.7705208333333333e-05</ixx>
+            <iyy> 1.7705208333333333e-05</iyy>
             <izz>3.234375e-05</izz>
             <ixy>0</ixy>
             <ixz>0</ixz>
@@ -1047,7 +1114,7 @@
           <geometry>
             <cylinder>
               <radius>0.0375</radius>
-              <length>0.017</length>
+              <length>0.02</length>
             </cylinder>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -1071,7 +1138,7 @@
           <geometry>
             <cylinder>
               <radius>0.0375</radius>
-              <length>0.017</length>
+              <length>0.02</length>
             </cylinder>
           </geometry>
           <material>
@@ -1087,18 +1154,25 @@
       </link>
       <joint name='wheel_rear_left_spin' type='revolute'>
         <parent>susp_rear_left</parent>
-
         <child>wheel_rear_left</child>
-
         <axis>
           <xyz>0 0 1</xyz>
           <limit>
             <lower>-1e+16</lower>
             <upper>1e+16</upper>
           </limit>
+          <limit>
+            <xyz>1 0 0</xyz> <!-- X 축 제한 -->
+            <lower>0</lower>
+            <upper>0</upper>
+          </limit>
+          <limit>
+            <xyz>0 1 0</xyz> <!-- Y 축 제한 -->
+            <lower>0</lower>
+            <upper>0</upper>
+          </limit>
           <dynamics>
-            <spring_reference>0</spring_reference>
-            <spring_stiffness>0</spring_stiffness>
+            <friction>0.005</friction>
           </dynamics>
         </axis>
       </joint>

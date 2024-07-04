@@ -22,16 +22,16 @@ namespace gazebo
         ROS_INFO("ModelPlugin for %s loaded successfully!", _model->GetName().c_str());
         // 모델의 링크 출력
         auto links = _model->GetLinks();
-        std::cout << "Model has " << links.size() << " links:" << std::endl;
-        for (auto &link : links) {
-            std::cout << " - Link Name: " << link->GetName() << std::endl;
-        }
+        // std::cout << "Model has " << links.size() << " links:" << std::endl;
+        // for (auto &link : links) {
+        //     std::cout << " - Link Name: " << link->GetName() << std::endl;
+        // }
       // 모델의 조인트 출력
         auto joints = _model->GetJoints();
-        std::cout << "Model has " << joints.size() << " joints:" << std::endl;
-        for (auto &joint : joints) {
-        std::cout << " - Joint Name: " << joint->GetName() << ", Type: " << joint->GetType() << std::endl;
-        }
+        // std::cout << "Model has " << joints.size() << " joints:" << std::endl;
+        // for (auto &joint : joints) {
+        // std::cout << " - Joint Name: " << joint->GetName() << ", Type: " << joint->GetType() << std::endl;
+        // }
         if (!ros::isInitialized())
         {
         int argc = 0;
@@ -67,7 +67,8 @@ namespace gazebo
 
     void OnRosMsg(const cleaner_simulation::TorqueTestConstPtr &msg)
     {
-        this->left_torque=msg->left_torque;
+
+        this->left_torque=msg->left_torque; 
         this->right_torque=msg->right_torque;
 
     }
@@ -131,7 +132,7 @@ namespace gazebo
         else{
           this->left_torque=left_torque_sign*min(stall_torque,abs(this->left_torque));
         }       
-          // gzmsg << "left_torque: " << this->left_torque  << ", left_angvel: " << left_angvel<<std::endl;
+          gzmsg << "left_torque: " << this->left_torque  << ", left_angvel: " << left_angvel<<std::endl;
 
         if (right_torque_sign*right_angvel_sign>0){
           double right_torque=max((-1/32.5)*((abs(right_angvel*60)/(2*M_PI))-77.5),0.0);
@@ -143,10 +144,9 @@ namespace gazebo
         else{
           this->right_torque=right_torque_sign*min(stall_torque,abs(this->right_torque));
         }        
-          // gzmsg << "right_torque: " << this->right_torque    << ", right_angvel: " << right_angvel<<std::endl;
+          gzmsg << "right_torque: " << this->right_torque    << ", right_angvel: " << right_angvel<<std::endl;
 
-        this->left_wheel->SetForce(0, this->left_torque);
-        this->right_wheel->SetForce(0, this->right_torque);
+
 
 
 
@@ -178,6 +178,7 @@ namespace gazebo
     ros::Timer odometry_timer;
     double left_torque;
     double right_torque;
+    
   };
 
   GZ_REGISTER_MODEL_PLUGIN(ModelControlPlugin)
