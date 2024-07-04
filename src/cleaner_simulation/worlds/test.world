@@ -18,8 +18,8 @@
             </contact>
             <friction>
               <ode>
-                <mu>100</mu>
-                <mu2>100</mu2>
+                <mu>0.9</mu>
+                <mu2>0.9</mu2>
               </ode>
               <torsional>
                 <ode/>
@@ -508,166 +508,9 @@
 
 
 
-      <!-- <visual name="sensor_visual">
-        <pose>0.00 0 0.11 0 0 0</pose>
-        <geometry>
-          <mesh>
-            <uri>model://hokuyo/meshes/hokuyo.dae</uri>
-          </mesh>
-        </geometry>
-      </visual>
-      <sensor name="laser" type="ray">
-        <pose>0.00 0 0.135 0 0 0</pose>
-        <ray>
-          <scan>
-            <horizontal>
-              <samples>360</samples>
-              <resolution>1</resolution>
-              <min_angle>-3.14159265359</min_angle>
-              <max_angle>3.14159265359</max_angle>
-            </horizontal>
-            
-          </scan>
-          <range>
-            <min>0.33</min>
-            <max>3.5</max>
-            <resolution>0.01</resolution>
-          </range>
-          <noise>
-            <type>gaussian</type>
-            <mean>0.0</mean>
-            <stddev>0.01</stddev>
-          </noise>
-        </ray>
-        <plugin name="gazebo_ros_laser_controller" filename="libgazebo_ros_laser.so">
-          <topicName>/robot_cleaner/laser</topicName>
-          <frameName>chassis_frame</frameName>
-          <updateRateHZ>1.0</updateRateHZ>
-        </plugin>
-        <always_on>1</always_on>
-        <visualize>false</visualize>
-      </sensor>
-      <sensor name="imu_sensor" type="imu">
-        <imu>
-          <angular_velocity>
-            <x>
-              <noise type="gaussian">
-                <mean>0.0</mean>
-                <stddev>2e-4</stddev>
-                <bias_mean>0.0000075</bias_mean>
-                <bias_stddev>0.0000008</bias_stddev>
-              </noise>
-            </x>
-            <y>
-              <noise type="gaussian">
-                <mean>0.0</mean>
-                <stddev>2e-4</stddev>
-                <bias_mean>0.0000075</bias_mean>
-                <bias_stddev>0.0000008</bias_stddev>
-              </noise>
-            </y>
-            <z>
-              <noise type="gaussian">
-                <mean>0.0</mean>
-                <stddev>2e-4</stddev>
-                <bias_mean>0.0000075</bias_mean>
-                <bias_stddev>0.0000008</bias_stddev>
-              </noise>
-            </z>
-          </angular_velocity>
-          <linear_acceleration>
-            <x>
-              <noise type="gaussian">
-                <mean>0.0</mean>
-                <stddev>1.7e-2</stddev>
-                <bias_mean>0.1</bias_mean>
-                <bias_stddev>0.001</bias_stddev>
-              </noise>
-            </x>
-            <y>
-              <noise type="gaussian">
-                <mean>0.0</mean>
-                <stddev>1.7e-2</stddev>
-                <bias_mean>0.1</bias_mean>
-                <bias_stddev>0.001</bias_stddev>
-              </noise>
-            </y>
-            <z>
-              <noise type="gaussian">
-                <mean>0.0</mean>
-                <stddev>1.7e-2</stddev>
-                <bias_mean>0.1</bias_mean>
-                <bias_stddev>0.001</bias_stddev>
-              </noise>
-            </z>
-          </linear_acceleration>
-        </imu>
-        <plugin name="gazebo_ros_imu" filename="libgazebo_ros_imu_sensor.so">
-        <topicName>/robot_cleaner/imu</topicName>
-        <frameName>chassis_link</frameName>
-        <updateRateHZ>200.0</updateRateHZ>
-        <initialOrientationAsReference>false</initialOrientationAsReference>
-        </plugin>
-        <always_on>1</always_on>
-      </sensor> -->
       </link>
 
-    <!-- <link name="steer_wheel">
-      <self_collide>0</self_collide>
-      <pose>-0.11 0 0.012  -1.5707963267948966 0 0</pose>
-      <inertial>
-        <mass>0.025</mass>
-        <inertia>
-          <ixx>1.1083333333333335e-06</ixx>
-          <iyy>1.1083333333333335e-06</iyy>
-          <izz>1.8000000000000001e-06</izz>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyz>0</iyz>
-        </inertia>
-      </inertial>
-      <collision name="collision">
-        <geometry>
-          <cylinder>
-            <radius>0.012</radius>
-            <length>0.01</length>
-          </cylinder>
-        </geometry>
-      </collision>
-      
-      <visual name="visual">
-        <geometry>
-          <cylinder>
-            <radius>0.012</radius>
-            <length>0.01</length>
-          </cylinder>
-        </geometry>
-        <material>
-          <script>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Black</name>
-          </script>
-        </material>
-      </visual>
 
-      <enable_wind>0</enable_wind>
-    </link>
-
-
-    <joint name="steer_wheel_spin" type="universal">
-      <parent>chassis</parent>
-      <child>steer_wheel</child>
-      <axis>
-        <xyz>0 -1 0</xyz>
-        <limit>
-          <lower>-0.6108652381980153</lower>
-          <upper>0.6108652381980153</upper>
-        </limit>
-      </axis>
-      <axis2>
-        <xyz>0 0 1</xyz>
-      </axis2>
-    </joint> -->
 
     <link name="front_wheel_left">
       <pose>0.1 -0.113 0.03  1.5707963267948966 0 0</pose>
@@ -891,8 +734,8 @@
         <axis>
           <xyz>0 0 -1</xyz>
           <limit>
-            <lower>-0.03</lower>
-            <upper>0.03</upper>
+            <lower>-0.05</lower>
+            <upper>0.05</upper>
           </limit>
 
           <limit>
@@ -976,7 +819,6 @@
             </script>
           </material>
         </visual>
-
         <enable_wind>0</enable_wind>
         <kinematic>0</kinematic>
       </link>
@@ -1065,8 +907,8 @@
         <axis>
           <xyz>0 0 -1</xyz>
           <limit>
-            <lower>-0.03</lower>
-            <upper>0.03</upper>
+            <lower>-0.05</lower>
+            <upper>0.05</upper>
           </limit>
 
           <dynamics>
@@ -1148,6 +990,7 @@
             </script>
           </material>
         </visual>
+
         <enable_wind>0</enable_wind>
         <kinematic>0</kinematic>
       </link>
