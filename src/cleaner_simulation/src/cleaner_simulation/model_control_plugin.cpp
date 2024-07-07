@@ -1,6 +1,7 @@
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/common/common.hh>
+#include <gazebo/common/PID.hh>
 #include <ignition/math/Vector3.hh>
 #include <sdf/sdf.hh>
 #include <ros/ros.h>
@@ -22,16 +23,16 @@ namespace gazebo
         ROS_INFO("ModelPlugin for %s loaded successfully!", _model->GetName().c_str());
         // 모델의 링크 출력
         auto links = _model->GetLinks();
-        // std::cout << "Model has " << links.size() << " links:" << std::endl;
-        // for (auto &link : links) {
-        //     std::cout << " - Link Name: " << link->GetName() << std::endl;
-        // }
+        std::cout << "Model has " << links.size() << " links:" << std::endl;
+        for (auto &link : links) {
+            std::cout << " - Link Name: " << link->GetName() << std::endl;
+        }
       // 모델의 조인트 출력
         auto joints = _model->GetJoints();
-        // std::cout << "Model has " << joints.size() << " joints:" << std::endl;
-        // for (auto &joint : joints) {
-        // std::cout << " - Joint Name: " << joint->GetName() << ", Type: " << joint->GetType() << std::endl;
-        // }
+        std::cout << "Model has " << joints.size() << " joints:" << std::endl;
+        for (auto &joint : joints) {
+        std::cout << " - Joint Name: " << joint->GetName() << ", Type: " << joint->GetType() << std::endl;
+        }
         if (!ros::isInitialized())
         {
         int argc = 0;
@@ -51,10 +52,13 @@ namespace gazebo
         this->left_torque = 0;
         this->right_torque = 0;
         this->chassis = _model->GetLink("chassis");
-        
-
+        this->desired_velocity=3;
+        // PID 파라미터 설정
+        double p = 1.0, i = 0.05, d = 0.005;
+        this->left_velocityPID.Init(p, i, d, 1.0, -1.0, 10, -10);
+        this->right_velocityPID.Init(p, i, d, 1.0, -1.0, 10, -10);
         std::cout << " Joint Name: " << this->right_wheel->GetName() << ", Type: " << this->right_wheel->GetType() << std::endl;
-        this->torque_Subscriber = this->rosNode->subscribe("/robot_control", 10, &ModelControlPlugin::OnRosMsg, this);
+        this->torque_Subscriber = this->rosNode->subscribe("/robot_control", 10, &ModelControlPlugin::OnTorqueMsg, this);
         this->pose_Publisher = this->rosNode->advertise<geometry_msgs::PoseStamped>("chassis_pose", 1000);
         this->wheelstate_Publisher = this->rosNode->advertise<sensor_msgs::JointState>("wheel_state", 1000);
         odometry_timer = rosNode->createTimer(ros::Duration(odometry_timer_interval), &ModelControlPlugin::Odometry_update, this);
@@ -65,10 +69,9 @@ namespace gazebo
 
     }
 
-    void OnRosMsg(const cleaner_simulation::TorqueTestConstPtr &msg)
+    void OnTorqueMsg(const cleaner_simulation::TorqueTestConstPtr &msg)
     {
-
-        this->left_torque=msg->left_torque; 
+        this->left_torque=msg->left_torque;
         this->right_torque=msg->right_torque;
 
     }
@@ -117,41 +120,42 @@ namespace gazebo
         // wheel_velocity
         wheelMsgs.velocity.push_back(left_angvel);
         wheelMsgs.velocity.push_back(right_angvel);
- 
+        double left_error = left_angvel-this->desired_velocity;
+        double right_error = right_angvel-this->desired_velocity;
+        gzmsg << "left_error: " <<left_error  << ", right_error: " << right_error<<std::endl;
 
-        double left_torque_sign = std::copysign(1.0, this->left_torque); 
-        double right_torque_sign = std::copysign(1.0, this->right_torque); 
-        double left_angvel_sign = std::copysign(1.0, left_angvel); 
-        double right_angvel_sign = std::copysign(1.0, right_angvel); 
-        if (left_torque_sign*left_angvel_sign>0){
-          double left_torque=max((-1/32.5)*((abs(left_angvel*60)/(2*M_PI))-77.5),0.0);
+        // this->left_torque = this->left_velocityPID.Update(left_error, 0.001);
+        // this->right_torque = this->right_velocityPID.Update(right_error, 0.001);
+        // double left_torque_sign = std::copysign(1.0, this->left_torque); 
+        // double right_torque_sign = std::copysign(1.0, this->right_torque); 
+        // double left_angvel_sign = std::copysign(1.0, left_angvel); 
+        // double right_angvel_sign = std::copysign(1.0, right_angvel); 
+        // if (left_torque_sign*left_angvel_sign>0){
+        //   double left_torque=max((-1/32.5)*((abs(left_angvel*60)/(2*M_PI))-77.5),0.0);
           // gzmsg << "left_torque1: " << this->left_torque <<std::endl;
-          this->left_torque=min(left_torque,abs(this->left_torque));
-          this->left_torque=(this->left_torque)*left_torque_sign;
-        }
-        else{
-          this->left_torque=left_torque_sign*min(stall_torque,abs(this->left_torque));
-        }       
+        //   this->left_torque=min(left_torque,abs(this->left_torque));
+        //   this->left_torque=(this->left_torque)*left_torque_sign;
+        // }
+        // else{
+        //   this->left_torque=left_torque_sign*min(stall_torque,abs(this->left_torque));
+        // }       
           gzmsg << "left_torque: " << this->left_torque  << ", left_angvel: " << left_angvel<<std::endl;
 
-        if (right_torque_sign*right_angvel_sign>0){
-          double right_torque=max((-1/32.5)*((abs(right_angvel*60)/(2*M_PI))-77.5),0.0);
+        // if (right_torque_sign*right_angvel_sign>0){
+        //   double right_torque=max((-1/32.5)*((abs(right_angvel*60)/(2*M_PI))-77.5),0.0);
           // gzmsg << "right_torque1: " << this->right_torque <<std::endl;
 
-          this->right_torque=min(right_torque,abs(this->right_torque));
-          this->right_torque=(this->right_torque)*right_torque_sign;
-        }
-        else{
-          this->right_torque=right_torque_sign*min(stall_torque,abs(this->right_torque));
-        }        
-          gzmsg << "right_torque: " << this->right_torque    << ", right_angvel: " << right_angvel<<std::endl;
-
-
-
-
-
-        this->left_wheel->SetForce(0, this->left_torque);
-        this->right_wheel->SetForce(0, this->right_torque);
+        //   this->right_torque=min(right_torque,abs(this->right_torque));
+        //   this->right_torque=(this->right_torque)*right_torque_sign;
+        // }
+        // else{
+          // this->right_torque=right_torque_sign*min(stall_torque,abs(this->right_torque));
+        // }        
+        gzmsg << "right_torque: " << this->right_torque    << ", right_angvel: " << right_angvel<<std::endl;
+        this->left_wheel->SetVelocity(0,this->desired_velocity);
+        this->right_wheel->SetVelocity(0,this->desired_velocity);
+        // this->left_wheel->SetForce(0, this->left_torque);
+        // this->right_wheel->SetForce(0, this->right_torque);
         // wheeltorque
         wheelMsgs.effort.push_back(this->left_torque);
         wheelMsgs.effort.push_back(this->right_torque);
@@ -176,9 +180,11 @@ namespace gazebo
     ros::Publisher pose_Publisher;
     ros::Publisher wheelstate_Publisher;
     ros::Timer odometry_timer;
+    common::PID left_velocityPID;
+    common::PID right_velocityPID;
     double left_torque;
     double right_torque;
-    
+    double desired_velocity;
   };
 
   GZ_REGISTER_MODEL_PLUGIN(ModelControlPlugin)
