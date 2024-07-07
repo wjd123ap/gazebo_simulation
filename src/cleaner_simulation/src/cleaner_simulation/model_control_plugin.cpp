@@ -44,11 +44,11 @@ namespace gazebo
         double odometry_timer_interval = (1.0)/200;
 
         this->rosNode.reset(new ros::NodeHandle("robot_cleaner"));
-
+        this->left_wheel = _model->GetJoint("wheel_rear_left_spin");
         this->right_wheel = _model->GetJoint("wheel_rear_right_spin");
 
 
-        this->left_wheel = _model->GetJoint("wheel_rear_left_spin");
+
         this->left_torque = 0;
         this->right_torque = 0;
         this->chassis = _model->GetLink("chassis");
@@ -124,8 +124,8 @@ namespace gazebo
         double right_error = right_angvel-this->desired_velocity;
         gzmsg << "left_error: " <<left_error  << ", right_error: " << right_error<<std::endl;
 
-        // this->left_torque = this->left_velocityPID.Update(left_error, 0.001);
-        // this->right_torque = this->right_velocityPID.Update(right_error, 0.001);
+        this->left_torque = this->left_velocityPID.Update(left_error, 0.001);
+        this->right_torque = this->right_velocityPID.Update(right_error, 0.001);
         // double left_torque_sign = std::copysign(1.0, this->left_torque); 
         // double right_torque_sign = std::copysign(1.0, this->right_torque); 
         // double left_angvel_sign = std::copysign(1.0, left_angvel); 
@@ -152,10 +152,10 @@ namespace gazebo
           // this->right_torque=right_torque_sign*min(stall_torque,abs(this->right_torque));
         // }        
         gzmsg << "right_torque: " << this->right_torque    << ", right_angvel: " << right_angvel<<std::endl;
-        this->left_wheel->SetVelocity(0,this->desired_velocity);
-        this->right_wheel->SetVelocity(0,this->desired_velocity);
-        // this->left_wheel->SetForce(0, this->left_torque);
-        // this->right_wheel->SetForce(0, this->right_torque);
+        // this->left_wheel->SetVelocity(0,this->desired_velocity);
+        // this->right_wheel->SetVelocity(0,this->desired_velocity);
+        this->left_wheel->SetForce(0, this->left_torque);
+        this->right_wheel->SetForce(0, this->right_torque);
         // wheeltorque
         wheelMsgs.effort.push_back(this->left_torque);
         wheelMsgs.effort.push_back(this->right_torque);
