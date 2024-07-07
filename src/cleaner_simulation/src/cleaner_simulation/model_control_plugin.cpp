@@ -55,8 +55,8 @@ namespace gazebo
         this->desired_velocity=3;
         // PID 파라미터 설정
         double p = 1.0, i = 0.05, d = 0.005;
-        this->left_velocityPID.Init(p, i, d, 1.0, -1.0, 10, -10);
-        this->right_velocityPID.Init(p, i, d, 1.0, -1.0, 10, -10);
+        this->left_velocityPID.Init(p, i, d, 1.0, -1.0, 5, -5);
+        this->right_velocityPID.Init(p, i, d, 1.0, -1.0, 5, -5);
         std::cout << " Joint Name: " << this->right_wheel->GetName() << ", Type: " << this->right_wheel->GetType() << std::endl;
         this->torque_Subscriber = this->rosNode->subscribe("/robot_control", 10, &ModelControlPlugin::OnTorqueMsg, this);
         this->pose_Publisher = this->rosNode->advertise<geometry_msgs::PoseStamped>("chassis_pose", 1000);
@@ -154,8 +154,8 @@ namespace gazebo
         gzmsg << "right_torque: " << this->right_torque    << ", right_angvel: " << right_angvel<<std::endl;
         // this->left_wheel->SetVelocity(0,this->desired_velocity);
         // this->right_wheel->SetVelocity(0,this->desired_velocity);
-        this->left_wheel->SetForce(0, this->left_torque);
-        this->right_wheel->SetForce(0, this->right_torque);
+        this->left_wheel->SetForce(0, 0.1);
+        this->right_wheel->SetForce(0, 0.1);
         // wheeltorque
         wheelMsgs.effort.push_back(this->left_torque);
         wheelMsgs.effort.push_back(this->right_torque);
