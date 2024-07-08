@@ -19,7 +19,8 @@ Turn on the new terminal and give the next command to apply torque to the wheels
 rostopic pub /wheelvel_control cleaner_simulation/TorqueTest "$(cat src/cleaner_simulation/config/testTorque.yaml)" 
 ``` or
 ```bash
-rostopic pub /wheelvel_control cleaner_simulation/WheelVel "left: 3.0 right: 3.0" 
+rostopic pub /wheelvel_control cleaner_simulation/WheelVel "left: 3.0
+right: 3.0" 
 ```
 
 
