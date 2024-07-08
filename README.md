@@ -16,9 +16,6 @@ roslaunch cleaner_simulation simulation_run.launch
 ```
 Turn on the new terminal and give the next command to apply torque to the wheels.
 ```bash
-rostopic pub /wheelvel_control cleaner_simulation/TorqueTest "$(cat src/cleaner_simulation/config/testTorque.yaml)" 
-``` or
-```bash
 rostopic pub /wheelvel_control cleaner_simulation/WheelVel "left: 3.0
 right: 3.0" 
 ```
