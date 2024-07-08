@@ -1,0 +1,6 @@
+parameters:
+  desired_velocity: 0.12
+  wheel_radius: 0.0375
+  init_target_x: 0.5
+  init_target_y: 1.5
+  pos_threshold: 0.02

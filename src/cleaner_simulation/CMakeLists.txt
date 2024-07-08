@@ -12,10 +12,11 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   sensor_msgs
+  nav_msgs
   geometry_msgs
   message_generation
 )
-
+find_package(Eigen3 QUIET)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 find_package(gazebo REQUIRED)
@@ -53,7 +54,8 @@ find_package(gazebo REQUIRED)
 add_message_files(
   FILES
   TorqueTest.msg
-
+  WheelVel.msg
+  TargetPos.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -113,6 +115,7 @@ catkin_package(
     std_msgs
     sensor_msgs
     geometry_msgs
+    nav_msgs
 )
 
 ###########
@@ -122,15 +125,17 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 link_directories(${GAZEBO_LIBRARY_DIRS})
+include_directories(${EIGEN3_INCLUDE_DIR} "/usr/include/eigen3")
 include_directories(
 include  
 ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS})
-add_library(cleaner_ros
-  src/cleaner_simulation/cleaner_ros.cpp
+
+add_library(cleaner
+  src/cleaner_simulation/cleaner.cpp
 )
-target_link_libraries(cleaner_ros ${catkin_LIBRARIES})
+target_link_libraries(cleaner ${catkin_LIBRARIES})
 add_executable(cleaner_node src/cleaner_simulation/cleaner_node.cpp)
-target_link_libraries(cleaner_node cleaner_ros)
+target_link_libraries(cleaner_node cleaner)
 ## Declare a C++ library
 add_library(world_control_plugin
   src/${PROJECT_NAME}/world_control_plugin.cpp
