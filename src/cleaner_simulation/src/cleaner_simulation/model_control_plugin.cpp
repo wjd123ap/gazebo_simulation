@@ -7,6 +7,7 @@
 #include <ros/ros.h>
 #include <std_msgs/String.h>
 #include <nav_msgs/Odometry.h>
+#include <sensor_msgs/Imu.h>
 #include "cleaner_simulation/TorqueTest.h"
 #include "cleaner_simulation/WheelVel.h"
 #include <cmath>
@@ -62,8 +63,12 @@ namespace gazebo
         this->rosNode.reset(new ros::NodeHandle("robot_cleaner"));
         this->left_wheel = _model->GetJoint("wheel_rear_left_spin");
         this->right_wheel = _model->GetJoint("wheel_rear_right_spin");
-
-
+        this->left_wheel->SetProvideFeedback(true);
+        this->right_wheel->SetProvideFeedback(true); 
+        this->left_rear_wheel_link= _model->GetLink("wheel_rear_left");
+        this->right_rear_wheel_link= _model->GetLink("wheel_rear_right");
+        this->left_front_wheel_link= _model->GetLink("front_wheel_left");
+        this->right_front_wheel_link= _model->GetLink("front_wheel_right");
 
         this->left_torque = 0;
         this->right_torque = 0;
@@ -77,7 +82,9 @@ namespace gazebo
         std::cout << " Joint Name: " << this->right_wheel->GetName() << ", Type: " << this->right_wheel->GetType() << std::endl;
         this->torque_Subscriber = this->rosNode->subscribe("/robot_control", 10, &ModelControlPlugin::OnTorqueMsg, this);
         this->wheelvel_Subscriber = this->rosNode->subscribe("/wheelvel_control", 10, &ModelControlPlugin::OnWheelVelMsg, this);
+        this->imu_Subscriber = this->rosNode->subscribe("/robot_cleaner/imu", 10, &ModelControlPlugin::OnImuMsg, this);       
         this->pose_Publisher = this->rosNode->advertise<nav_msgs::Odometry>("chassis_pose", 1000);
+        
         this->wheelstate_Publisher = this->rosNode->advertise<sensor_msgs::JointState>("wheel_state", 1000);
         odometry_timer = rosNode->createTimer(ros::Duration(odometry_timer_interval), &ModelControlPlugin::Odometry_update, this);
         this->updateConnection = event::Events::ConnectWorldUpdateBegin(
@@ -100,6 +107,13 @@ namespace gazebo
         this->desired_right_angvel=msg->right;
     }
 
+    void OnImuMsg(const sensor_msgs::ImuConstPtr &msg)
+    {
+      this->chassis_angvel[0] = msg->angular_velocity.x;
+      this->chassis_angvel[1] = msg->angular_velocity.y;
+      this->chassis_angvel[2] = msg->angular_velocity.z;
+    }
+
     void Odometry_update(const ros::TimerEvent&)
     {
       nav_msgs::Odometry odometry;
@@ -112,6 +126,9 @@ namespace gazebo
       odometry.pose.pose.orientation.x = this->chassis->WorldPose().Rot().X();
       odometry.pose.pose.orientation.y = this->chassis->WorldPose().Rot().Y();
       odometry.pose.pose.orientation.z = this->chassis->WorldPose().Rot().Z();
+      odometry.twist.twist.angular.x = this->chassis_angvel[0];
+      odometry.twist.twist.angular.y = this->chassis_angvel[1];
+      odometry.twist.twist.angular.z = this->chassis_angvel[2];
       odometry.twist.twist.linear.x = this->chassis->WorldLinearVel().X();
       odometry.twist.twist.linear.y = this->chassis->WorldLinearVel().Y();
       odometry.twist.twist.linear.z = this->chassis->WorldLinearVel().Z();
@@ -136,6 +153,8 @@ namespace gazebo
             normalized_right_angle += 2 * M_PI;  // 음수 각도를 양수로 조정
         }
         double right_angvel = this->right_wheel->GetVelocity(0); // 조인트 각속도 (라디안/초)
+        double right_measure_torque =this->right_wheel->GetForce(0);
+
         wheelMsgs.header.stamp = ros::Time::now();
         wheelMsgs.header.frame_id = "chassis";
         wheelMsgs.name.push_back("left_wheel");
@@ -146,6 +165,7 @@ namespace gazebo
         // wheel_velocity
         wheelMsgs.velocity.push_back(left_angvel);
         wheelMsgs.velocity.push_back(right_angvel);
+        // gzmsg << "desired_left_angvel: " << this->desired_left_angvel<< ",desired_right_angvel: " << this->desired_right_angvel<<std::endl;
         double left_error = left_angvel - this->desired_left_angvel;
         double right_error = right_angvel - this->desired_right_angvel;
         // gzmsg << "left_error: " <<left_error  << ", right_error: " << right_error<<std::endl;
@@ -178,18 +198,31 @@ namespace gazebo
           this->right_torque=right_torque_sign*min(stall_torque,abs(this->right_torque));
         }        
         // gzmsg << "right_torque: " << this->right_torque    << ", right_angvel: " << right_angvel<<std::endl;
-
+        // ignition::math::Vector3d left_link_torque(0, 0, this->left_torque);
+        // ignition::math::Vector3d right_link_torque(0, 0, this->right_torque);
+        // this->left_wheel_link->AddRelativeTorque(left_link_torque);
+        // this->right_wheel_link->AddRelativeTorque(right_link_torque);        
         this->left_wheel->SetForce(0, this->left_torque);
         this->right_wheel->SetForce(0, this->right_torque);
         wheelMsgs.effort.push_back(this->left_torque);
         wheelMsgs.effort.push_back(this->right_torque);
 
         wheelstate_Publisher.publish(wheelMsgs);
-
+        // gzmsg << "right_measure_torque: " << right_measure_torque<< ",desired_right_torque: " << this->right_torque<<std::endl;
         // 로그에 상태 출력
         // gzmsg << "left_wheel_angle: " << normalized_left_angle  << ", left_angvel: " << left_angvel<<std::endl;
         // gzmsg << "right_wheel_angle: " << normalized_right_angle  << ", right_angvel: " << right_angvel<<std::endl;
-
+        ignition::math::Vector3d left_wheel_jointforce = this->left_wheel->LinkForce(0);
+        ignition::math::Vector3d right_wheel_jointforce = this->right_wheel->LinkForce(0);        
+        // auto force1 = this->left_rear_wheel_link->WorldForce();
+        // auto force2 = this->right_rear_wheel_link->WorldForce();
+        // auto force3 = this->chassis->WorldForce();
+        // gazebo::physics::Collision_V collisions = this->right_rear_wheel_link->GetCollisions();
+        // std::cout << "collisions.size(): " << collisions[0]->GetModel()->GetName() << std::endl;
+        // std::cout << "collisions.size(): " << collisions.size() << std::endl;
+        std::cout << "left_wheel_jointforce: " << left_wheel_jointforce << std::endl;
+        std::cout << "right_wheel_jointforce: " << right_wheel_jointforce << std::endl;
+  
     }
   private:
     std::unique_ptr<ros::NodeHandle> rosNode;
@@ -198,18 +231,24 @@ namespace gazebo
     physics::JointPtr left_wheel;
     physics::JointPtr right_wheel;
     physics::LinkPtr chassis;
+    physics::LinkPtr left_front_wheel_link;
+    physics::LinkPtr right_front_wheel_link;
+    physics::LinkPtr left_rear_wheel_link;
+    physics::LinkPtr right_rear_wheel_link;
     std::string right_wheel_jointName;
     std::string left_wheel_jointName;
     ros::Subscriber torque_Subscriber;
     ros::Subscriber wheelvel_Subscriber;
+    ros::Subscriber imu_Subscriber;
     ros::Publisher pose_Publisher;
     ros::Publisher wheelstate_Publisher;
-    
+
     ros::Timer odometry_timer;
     common::PID left_velocityPID;
     common::PID right_velocityPID;
     double left_torque;
     double right_torque;
+    double chassis_angvel[3];
 
     double desired_left_angvel;
     double desired_right_angvel;

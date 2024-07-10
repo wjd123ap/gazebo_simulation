@@ -28,6 +28,20 @@ namespace gazebo
       {
         ROS_INFO("%s", model->GetName().c_str());
       }
+      transport::NodePtr node(new transport::Node());
+      node->Init(_world->Name());
+      transport::PublisherPtr physicsPub =
+        node->Advertise<msgs::Physics>("~/physics");
+      msgs::Physics physicsMsg;
+      physicsMsg.set_iters(200);
+      physicsMsg.set_sor(1.2);
+      physicsMsg.set_erp(0.01);
+
+      physicsMsg.set_max_step_size(0.0002);
+      physicsMsg.set_real_time_update_rate(5000);
+      physicsMsg.set_contact_surface_layer(0.00001);
+      physicsMsg.set_solver_type("world");
+      physicsPub->Publish(physicsMsg);
     }
 
     void OnRosMsg(const std_msgs::StringConstPtr &msg)
