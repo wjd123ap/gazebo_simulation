@@ -862,7 +862,6 @@
           </plugin>
           <contact>
             <collision>collision</collision>
-            
           </contact>
         </sensor>
         <enable_wind>0</enable_wind>
