@@ -56,6 +56,8 @@ add_message_files(
   TorqueTest.msg
   WheelVel.msg
   TargetPos.msg
+  Contact.msg
+  Contacts.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -74,7 +76,9 @@ add_message_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
-  std_msgs  # Or other packages containing msgs
+  std_msgs
+  geometry_msgs
+    # Or other packages containing msgs
 )
 
 ################################################
@@ -143,6 +147,9 @@ add_library(world_control_plugin
 add_library(model_control_plugin
   src/${PROJECT_NAME}/model_control_plugin.cpp
 )
+add_library(contact SHARED
+  src/${PROJECT_NAME}/ContactPlugin.cpp
+)
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -171,6 +178,10 @@ target_link_libraries(world_control_plugin
   ${GAZEBO_LIBRARIES}
 )
 target_link_libraries(model_control_plugin
+  ${catkin_LIBRARIES}
+  ${GAZEBO_LIBRARIES}
+)
+target_link_libraries(contact
   ${catkin_LIBRARIES}
   ${GAZEBO_LIBRARIES}
 )

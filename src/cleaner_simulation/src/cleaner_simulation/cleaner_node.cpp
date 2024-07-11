@@ -40,6 +40,16 @@ void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
     double theta = atan2(rotation_matrix(1,0),rotation_matrix(0,0));
     Eigen::Vector2d chassis_position2d(odometry_msg->pose.pose.position.x,odometry_msg->pose.pose.position.y);
     Eigen::Vector2d chassis_velocity2d(odometry_msg->twist.twist.linear.x,odometry_msg->twist.twist.linear.y);
+    if ((target_pos-chassis_position2d).norm()<pos_threshold)
+    {
+      cleaner_simulation::WheelVel wheelvel_msg;
+      wheelvel_msg.left=0;
+      wheelvel_msg.right=0;
+
+      target_on=false;
+      pub_wheelvel.publish(wheelvel_msg);
+      return;
+    }
     Eigen::Vector2d target_offset = target_pos-chassis_position2d;
     Eigen::Vector2d target_offset_normalized =target_offset.normalized();
     double desired_theta = atan2(target_offset(1),target_offset(0));
@@ -51,23 +61,15 @@ void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
     double desired_right_angvel = (desired_velocity/wheel_radius) + command_angvel;
     // cout<<"desired_left_angvel:"<<desired_left_angvel<<endl;
     // cout<<"desired_right_angvel:"<<desired_right_angvel<<endl;
-    if ((target_pos-chassis_position2d).norm()<pos_threshold)
-    {
-      cleaner_simulation::WheelVel wheelvel_msg;
-      wheelvel_msg.left=0;
-      wheelvel_msg.right=0;
 
-      target_on=false;
-      pub_wheelvel.publish(wheelvel_msg);
-    }else{
-      cleaner_simulation::WheelVel wheelvel_msg;
-      wheelvel_msg.left=desired_left_angvel;
-      wheelvel_msg.right=desired_right_angvel;
+    cleaner_simulation::WheelVel wheelvel_msg;
+    wheelvel_msg.left=desired_left_angvel;
+    wheelvel_msg.right=desired_right_angvel;
 
-      pub_wheelvel.publish(wheelvel_msg);
-    }
+    pub_wheelvel.publish(wheelvel_msg);
     
     }
+
     // cout<<"theta:"<<theta<<endl;
 }
 void wheel_state_callback(const sensor_msgs::JointStateConstPtr &jointstate_msg){

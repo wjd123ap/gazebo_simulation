@@ -67,8 +67,8 @@ namespace gazebo
         this->right_wheel->SetProvideFeedback(true); 
         this->left_rear_wheel_link= _model->GetLink("wheel_rear_left");
         this->right_rear_wheel_link= _model->GetLink("wheel_rear_right");
-        this->left_front_wheel_link= _model->GetLink("front_wheel_left");
-        this->right_front_wheel_link= _model->GetLink("front_wheel_right");
+        this->left_front_wheel_link= _model->GetLink("wheel_front_left");
+        this->right_front_wheel_link= _model->GetLink("wheel_front_right");
 
         this->left_torque = 0;
         this->right_torque = 0;
@@ -198,12 +198,12 @@ namespace gazebo
           this->right_torque=right_torque_sign*min(stall_torque,abs(this->right_torque));
         }        
         // gzmsg << "right_torque: " << this->right_torque    << ", right_angvel: " << right_angvel<<std::endl;
-        // ignition::math::Vector3d left_link_torque(0, 0, this->left_torque);
-        // ignition::math::Vector3d right_link_torque(0, 0, this->right_torque);
-        // this->left_wheel_link->AddRelativeTorque(left_link_torque);
-        // this->right_wheel_link->AddRelativeTorque(right_link_torque);        
-        this->left_wheel->SetForce(0, this->left_torque);
-        this->right_wheel->SetForce(0, this->right_torque);
+        ignition::math::Vector3d left_link_torque(0, 0, this->left_torque);
+        ignition::math::Vector3d right_link_torque(0, 0, this->right_torque);
+        // this->left_rear_wheel_link->AddRelativeTorque(left_link_torque);
+        // this->right_rear_wheel_link->AddRelativeTorque(right_link_torque);        
+        // this->left_wheel->SetForce(0, this->left_torque);
+        // this->right_wheel->SetForce(0, this->right_torque);
         wheelMsgs.effort.push_back(this->left_torque);
         wheelMsgs.effort.push_back(this->right_torque);
 
@@ -220,8 +220,9 @@ namespace gazebo
         // gazebo::physics::Collision_V collisions = this->right_rear_wheel_link->GetCollisions();
         // std::cout << "collisions.size(): " << collisions[0]->GetModel()->GetName() << std::endl;
         // std::cout << "collisions.size(): " << collisions.size() << std::endl;
-        std::cout << "left_wheel_jointforce: " << left_wheel_jointforce << std::endl;
-        std::cout << "right_wheel_jointforce: " << right_wheel_jointforce << std::endl;
+        // std::cout << "force2: " << force2 << std::endl;        
+        gzmsg << "left_wheel_jointforce: " << left_wheel_jointforce << std::endl;
+        gzmsg << "right_wheel_jointforce: " << right_wheel_jointforce << std::endl;
   
     }
   private:
