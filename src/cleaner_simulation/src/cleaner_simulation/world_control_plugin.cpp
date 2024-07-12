@@ -34,7 +34,7 @@ namespace gazebo
       transport::PublisherPtr physicsPub =
         node->Advertise<msgs::Physics>("~/physics");
       msgs::Physics physicsMsg;
-      physicsMsg.set_iters(400);
+      physicsMsg.set_iters(500);
       physicsMsg.set_sor(0.1);
       physicsMsg.set_erp(0.001);
 

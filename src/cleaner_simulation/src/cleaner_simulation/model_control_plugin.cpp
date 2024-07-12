@@ -77,7 +77,7 @@ namespace gazebo
         this->right_rear_wheel_link= _model->GetLink("wheel_rear_right");
         this->left_front_wheel_link= _model->GetLink("wheel_front_left");
         this->right_front_wheel_link= _model->GetLink("wheel_front_right");
-
+        this->last_updatetime=0;
         this->left_torque = 0;
         this->right_torque = 0;
         this->desired_left_angvel = 0;
@@ -150,20 +150,22 @@ namespace gazebo
         sensor_msgs::JointState wheelMsgs;
         // 조인트 상태 읽기
         wheelMsgs.header.stamp = ros::Time::now();
+        double steptime=wheelMsgs.header.stamp.toSec()-this->last_updatetime;
+        this->last_updatetime=wheelMsgs.header.stamp.toSec();
         double left_angle = this->left_wheel->Position(0); // 조인트 각도 (라디안)
         double normalized_left_angle = std::fmod(left_angle, 2 * M_PI);
         if (normalized_left_angle < 0) {
             normalized_left_angle += 2 * M_PI;  // 음수 각도를 양수로 조정
         }
-        double left_angvel = this->left_wheel->GetVelocity(0); // 조인트 각속도 (라디안/초)
+
 
         double right_angle = this->right_wheel->Position(0); // 조인트 각도 (라디안)
         double normalized_right_angle = std::fmod(right_angle, 2 * M_PI);
         if (normalized_right_angle < 0) {
             normalized_right_angle += 2 * M_PI;  // 음수 각도를 양수로 조정
         }
+        double left_angvel = this->left_wheel->GetVelocity(0); // 조인트 각속도 (라디안/초)
         double right_angvel = this->right_wheel->GetVelocity(0); // 조인트 각속도 (라디안/초)
-        double right_measure_torque =this->right_wheel->GetForce(0);
 
 
         wheelMsgs.header.frame_id = "chassis";
@@ -180,8 +182,8 @@ namespace gazebo
         double right_error = right_angvel - this->desired_right_angvel;
         gzmsg << "left_error: " <<left_error  << ", right_error: " << right_error<<std::endl;
 
-        this->left_torque = this -> left_velocityPID.Update(left_error, this->stepsize);
-        this->right_torque = this -> right_velocityPID.Update(right_error, this->stepsize);
+        this->left_torque = this -> left_velocityPID.Update(left_error, steptime);
+        this->right_torque = this -> right_velocityPID.Update(right_error, steptime);
         double left_torque_sign = std::copysign(1.0, this->left_torque); 
         double right_torque_sign = std::copysign(1.0, this->right_torque); 
         double left_angvel_sign = std::copysign(1.0, left_angvel); 
@@ -265,7 +267,7 @@ namespace gazebo
     double left_torque;
     double right_torque;
     double chassis_angvel[3];
-
+    double last_updatetime;
     double desired_left_angvel;
     double desired_right_angvel;
     double wheel_p;
