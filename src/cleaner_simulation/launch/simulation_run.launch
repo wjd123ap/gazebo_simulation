@@ -13,7 +13,7 @@
     <arg name="gui" value="true"/>
     <arg name="headless" value="false"/>
     <arg name="debug" value="false"/>
-    <arg name="verbose" value="true"/>
+    <arg name="verbose" value="false"/>
   </include>
   <node pkg="cleaner_simulation" type="cleaner_node" name="cleaner_node" output="screen"/>
 
