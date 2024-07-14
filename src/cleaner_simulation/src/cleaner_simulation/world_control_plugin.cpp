@@ -35,7 +35,7 @@ namespace gazebo
         node->Advertise<msgs::Physics>("~/physics");
       msgs::Physics physicsMsg;
       physicsMsg.set_iters(200);
-      physicsMsg.set_sor(0.15);
+      physicsMsg.set_sor(0.1);
       physicsMsg.set_erp(0.01);
 
       physicsMsg.set_max_step_size(0.0002);
