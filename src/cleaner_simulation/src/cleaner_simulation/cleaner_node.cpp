@@ -1,139 +1,281 @@
+#include <gazebo/gazebo.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/common/common.hh>
+#include <gazebo/common/PID.hh>
+#include <ignition/math/Vector3.hh>
+#include <sdf/sdf.hh>
 #include <ros/ros.h>
-#include <vector>
-#include <iostream>
-#include <queue>
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#include "cleaner_simulation/cleaner.hpp"
-#include <math.h>
+#include <std_msgs/String.h>
+#include <nav_msgs/Odometry.h>
+#include <sensor_msgs/Imu.h>
+#include "cleaner_simulation/TorqueTest.h"
 #include "cleaner_simulation/WheelVel.h"
+#include <cmath>
+#include <algorithm>
+#include <sensor_msgs/JointState.h>
 using namespace std;
-bool target_on = false;
-enum CONTROL_TYPE{MOVE,ROTATION};
-CONTROL_TYPE control_type; 
-
-Eigen::Vector2d target_pos;
-ros::Publisher pub_wheelvel;
-double wheel_radius, desired_velocity, pos_threshold,theta_threshold,move_p_gain,move_d_gain,rotation_p_gain,rotation_d_gain;
-double left_wheel_angvel, right_wheel_angvel,previous_error_theta,integral_error_theta;
-
-double normalize_angle(double angle) {
-    // Normalize angle to be within -PI and PI
-    if (angle > M_PI) {
-        angle -= 2 * M_PI;
-    }
-    else if (angle < -M_PI) {
-        angle += 2 * M_PI;
-    }
-    return angle;
-}
-double calculate_clockwise_difference(double theta, double desired_theta) {
-    double difference = desired_theta - theta;
-    difference = fmod(difference + 2 * M_PI, 2 * M_PI);
-    return normalize_angle(difference);
-}
-
-void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
-    if (target_on){
-    Eigen::Vector3d chassis_position(odometry_msg->pose.pose.position.x,odometry_msg->pose.pose.position.y,odometry_msg->pose.pose.position.z);
-    Eigen::Vector3d chassis_velocity(odometry_msg->twist.twist.linear.x,odometry_msg->twist.twist.linear.y,odometry_msg->twist.twist.linear.z);
-    Eigen::Vector3d chassis_angular(odometry_msg->twist.twist.angular.x,odometry_msg->twist.twist.angular.y,odometry_msg->twist.twist.angular.z);
-    Eigen::Quaterniond orientation(odometry_msg->pose.pose.orientation.w,odometry_msg->pose.pose.orientation.x,
-    odometry_msg->pose.pose.orientation.y,odometry_msg->pose.pose.orientation.z);
-    Eigen::Matrix3d rotation_matrix= orientation.toRotationMatrix();
-    double theta = atan2(rotation_matrix(1,0),rotation_matrix(0,0));
-    Eigen::Vector2d chassis_position2d(odometry_msg->pose.pose.position.x,odometry_msg->pose.pose.position.y);
-    Eigen::Vector2d chassis_velocity2d(odometry_msg->twist.twist.linear.x,odometry_msg->twist.twist.linear.y);
-    if ((target_pos-chassis_position2d).norm()<pos_threshold)
+double stall_torque=(77.5/32.5);
+namespace gazebo
+{
+  class ModelControlPlugin : public ModelPlugin
+  {
+  public:
+    void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     {
-      cleaner_simulation::WheelVel wheelvel_msg;
-      wheelvel_msg.left=0;
-      wheelvel_msg.right=0;
+        ROS_INFO("ModelPlugin for %s loaded successfully!", _model->GetName().c_str());
+      //   // 모델의 링크 출력
+      //   auto links = _model->GetLinks();
+      //   std::cout << "Model has " << links.size() << " links:" << std::endl;
+      //   for (auto &link : links) {
+      //       std::cout << " - Link Name: " << link->GetName() << std::endl;
+      //   }
+      // // 모델의 조인트 출력
+      //   auto joints = _model->GetJoints();
+      //   std::cout << "Model has " << joints.size() << " joints:" << std::endl;
+      //   for (auto &joint : joints) {
+      //   std::cout << " - Joint Name: " << joint->GetName() << ", Type: " << joint->GetType() << std::endl;
+      //   }
+        if (!ros::isInitialized())
+        {
+        int argc = 0;
+        char **argv = NULL;
+        ros::init(argc, argv, "robot_cleaner", ros::init_options::NoSigintHandler);
+        }
 
-      target_on=false;
-      pub_wheelvel.publish(wheelvel_msg);
-      return;
+        physics::WorldPtr world = _model->GetWorld();
+
+        double motor_hz;
+        physics::PhysicsEnginePtr physics = world->Physics();
+
+        if (_sdf->HasElement("wheel_p_gain")){
+          this->wheel_p=_sdf->Get<double>("wheel_p_gain");
+        }
+        if (_sdf->HasElement("wheel_i_gain")){
+          this->wheel_i=_sdf->Get<double>("wheel_i_gain");
+        }
+        if (_sdf->HasElement("wheel_d_gain")){
+          this->wheel_d=_sdf->Get<double>("wheel_d_gain");
+        }
+        if (_sdf->HasElement("motor_updateRateHZ")){
+          motor_hz=_sdf->Get<double>("motor_updateRateHZ");
+        }
+        this->model = _model;
+        double odometry_timer_interval = (1.0)/200;
+
+        this->stepsize = (1.0)/motor_hz;
+        cout<<"this->stepsize:"<<this->stepsize<<endl;
+        this->rosNode.reset(new ros::NodeHandle("robot_cleaner"));
+        this->left_wheel = _model->GetJoint("wheel_rear_left_spin");
+        this->right_wheel = _model->GetJoint("wheel_rear_right_spin");
+        // this->front_left_wheel = _model->GetJoint("wheel_front_left_spin");
+        // this->front_right_wheel = _model->GetJoint("wheel_front_right_spin");
+        // this->front_left_wheel->SetProvideFeedback(true);
+        // this->front_right_wheel->SetProvideFeedback(true); 
+        this->left_wheel->SetProvideFeedback(true);
+        this->right_wheel->SetProvideFeedback(true); 
+        this->left_rear_wheel_link= _model->GetLink("wheel_rear_left");
+        this->right_rear_wheel_link= _model->GetLink("wheel_rear_right");
+        // this->left_front_wheel_link= _model->GetLink("wheel_front_left");
+        // this->right_front_wheel_link= _model->GetLink("wheel_front_right");
+        this->last_updatetime=0;
+        this->left_torque = 0;
+        this->right_torque = 0;
+        this->desired_left_angvel = 0;
+        this->desired_right_angvel = 0;
+        this->chassis = _model->GetLink("chassis");
+
+
+        this->left_velocityPID.Init(this->wheel_p, this->wheel_i, this->wheel_d, 1.0, -1.0, stall_torque, -stall_torque);
+        this->right_velocityPID.Init(this->wheel_p, this->wheel_i, this->wheel_d, 1.0, -1.0, stall_torque, -stall_torque);
+        std::cout << " Joint Name: " << this->right_wheel->GetName() << ", Type: " << this->right_wheel->GetType() << std::endl;
+        this->torque_Subscriber = this->rosNode->subscribe("/robot_control", 10, &ModelControlPlugin::OnTorqueMsg, this);
+        this->wheelvel_Subscriber = this->rosNode->subscribe("/wheelvel_control", 10, &ModelControlPlugin::OnWheelVelMsg, this);
+        this->imu_Subscriber = this->rosNode->subscribe("/robot_cleaner/imu", 10, &ModelControlPlugin::OnImuMsg, this);       
+        this->pose_Publisher = this->rosNode->advertise<nav_msgs::Odometry>("chassis_pose", 1000);
+        
+        this->wheelstate_Publisher = this->rosNode->advertise<sensor_msgs::JointState>("wheel_state", 1000);
+        odometry_timer = rosNode->createTimer(ros::Duration(odometry_timer_interval), &ModelControlPlugin::Odometry_update, this);
+        motor_timer = rosNode->createTimer(ros::Duration(this->stepsize), &ModelControlPlugin::OnWheelState, this);
+        // this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+        //   std::bind(&ModelControlPlugin::OnWheelState, this));
+        ROS_INFO("RobotControlPlugin loaded");
+
+
     }
 
-    Eigen::Vector2d target_offset = target_pos-chassis_position2d;
-    Eigen::Vector2d target_offset_normalized =target_offset.normalized();
-    double desired_theta = atan2(target_offset(1),target_offset(0));
-    double error_theta= calculate_clockwise_difference(theta,desired_theta);
-    double desired_left_angvel,desired_right_angvel;
-
-    cout<<"error_theta1:"<<error_theta<<endl;
-    if ((abs(error_theta)>M_PI/36)&(control_type==MOVE)){
-      control_type=ROTATION;
-      previous_error_theta=error_theta;
+    void OnTorqueMsg(const cleaner_simulation::TorqueTestConstPtr &msg)
+    {
+        this->left_torque=msg->left_torque;
+        this->right_torque=msg->right_torque;
 
     }
 
-    if (control_type==ROTATION){
-
-      if (abs(error_theta)>theta_threshold){
-      cout<<"error_theta2:"<<error_theta<<endl;
-        double error_theta_dot = (error_theta-previous_error_theta);
-        double command_angvel = rotation_p_gain*error_theta+rotation_d_gain*error_theta_dot;
-        desired_left_angvel = - command_angvel;
-        desired_right_angvel = + command_angvel;
-        previous_error_theta=error_theta;
-      }
-      else{
-          control_type=MOVE;
-          previous_error_theta = 0;
-          desired_left_angvel = 0;
-          desired_right_angvel = 0;
-      }
-    }
-    else{
-        double desired_theta_dot = (target_offset(0)*chassis_velocity(1) - target_offset(1)*chassis_velocity(0))/(target_offset(0)*target_offset(0)+target_offset(1)*target_offset(1)); 
-        double error_theta_dot = desired_theta_dot-chassis_angular(2);
-        double command_angvel = move_p_gain*error_theta+move_d_gain*error_theta_dot;
-        desired_left_angvel = (desired_velocity/wheel_radius) - command_angvel;
-        desired_right_angvel = (desired_velocity/wheel_radius) + command_angvel;
+    void OnWheelVelMsg(const cleaner_simulation::WheelVelConstPtr &msg)
+    {
+        this->desired_left_angvel=msg->left;
+        this->desired_right_angvel=msg->right;
     }
 
-    // cout<<"desired_left_angvel:"<<desired_left_angvel<<endl;
-    // cout<<"desired_right_angvel:"<<desired_right_angvel<<endl;
+    void OnImuMsg(const sensor_msgs::ImuConstPtr &msg)
+    {
+      this->chassis_angvel[0] = msg->angular_velocity.x;
+      this->chassis_angvel[1] = msg->angular_velocity.y;
+      this->chassis_angvel[2] = msg->angular_velocity.z;
+    }
 
-    cleaner_simulation::WheelVel wheelvel_msg;
-    wheelvel_msg.left=desired_left_angvel;
-    wheelvel_msg.right=desired_right_angvel;
-
-    pub_wheelvel.publish(wheelvel_msg);
+    void Odometry_update(const ros::TimerEvent&)
+    {
+      nav_msgs::Odometry odometry;
+      odometry.header.frame_id = "world";
+      odometry.header.stamp = ros::Time::now();
+      odometry.pose.pose.position.x = this->chassis->WorldPose().Pos().X();
+      odometry.pose.pose.position.y = this->chassis->WorldPose().Pos().Y();
+      odometry.pose.pose.position.z = this->chassis->WorldPose().Pos().Z();
+      odometry.pose.pose.orientation.w = this->chassis->WorldPose().Rot().W();
+      odometry.pose.pose.orientation.x = this->chassis->WorldPose().Rot().X();
+      odometry.pose.pose.orientation.y = this->chassis->WorldPose().Rot().Y();
+      odometry.pose.pose.orientation.z = this->chassis->WorldPose().Rot().Z();
+      odometry.twist.twist.angular.x = this->chassis_angvel[0];
+      odometry.twist.twist.angular.y = this->chassis_angvel[1];
+      odometry.twist.twist.angular.z = this->chassis_angvel[2];
+      odometry.twist.twist.linear.x = this->chassis->WorldLinearVel().X();
+      odometry.twist.twist.linear.y = this->chassis->WorldLinearVel().Y();
+      odometry.twist.twist.linear.z = this->chassis->WorldLinearVel().Z();
+      pose_Publisher.publish(odometry);
+    }
     
+    void OnWheelState(const ros::TimerEvent&)
+    {
+
+        sensor_msgs::JointState wheelMsgs;
+        // 조인트 상태 읽기
+        wheelMsgs.header.stamp = ros::Time::now();
+        double steptime=wheelMsgs.header.stamp.toSec()-this->last_updatetime;
+        this->last_updatetime=wheelMsgs.header.stamp.toSec();
+        double left_angle = this->left_wheel->Position(0); // 조인트 각도 (라디안)
+        double normalized_left_angle = std::fmod(left_angle, 2 * M_PI);
+        if (normalized_left_angle < 0) {
+            normalized_left_angle += 2 * M_PI;  // 음수 각도를 양수로 조정
+        }
+
+
+        double right_angle = this->right_wheel->Position(0); // 조인트 각도 (라디안)
+        double normalized_right_angle = std::fmod(right_angle, 2 * M_PI);
+        if (normalized_right_angle < 0) {
+            normalized_right_angle += 2 * M_PI;  // 음수 각도를 양수로 조정
+        }
+        double left_angvel = this->left_wheel->GetVelocity(0); // 조인트 각속도 (라디안/초)
+        double right_angvel = this->right_wheel->GetVelocity(0); // 조인트 각속도 (라디안/초)
+
+
+        wheelMsgs.header.frame_id = "chassis";
+        wheelMsgs.name.push_back("left_wheel");
+        wheelMsgs.name.push_back("right_wheel");
+        // wheelpos (radian)
+        wheelMsgs.position.push_back(left_angle);
+        wheelMsgs.position.push_back(right_angle);
+        // wheel_velocity
+        wheelMsgs.velocity.push_back(left_angvel);
+        wheelMsgs.velocity.push_back(right_angvel);
+        this->desired_left_angvel=3.2;
+        this->desired_right_angvel=3.2;
+        // gzmsg << "desired_left_angvel: " << this->desired_left_angvel<< ",desired_right_angvel: " << this->desired_right_angvel<<std::endl;
+        double left_error = left_angvel - this->desired_left_angvel;
+        double right_error = right_angvel - this->desired_right_angvel;
+        // gzmsg << "left_error: " <<left_error  << ", right_error: " << right_error<<std::endl;
+
+        this->left_torque = this -> left_velocityPID.Update(left_error, steptime);
+        this->right_torque = this -> right_velocityPID.Update(right_error, steptime);
+        double left_torque_sign = std::copysign(1.0, this->left_torque); 
+        double right_torque_sign = std::copysign(1.0, this->right_torque); 
+        double left_angvel_sign = std::copysign(1.0, left_angvel); 
+        double right_angvel_sign = std::copysign(1.0, right_angvel); 
+        if (left_torque_sign*left_angvel_sign>0){
+          double left_torque=max((-1/32.5)*((abs(left_angvel*60)/(2*M_PI))-77.5),0.0);
+          // gzmsg << "left_torque1: " << this->left_torque <<std::endl;
+          this->left_torque=min(left_torque,abs(this->left_torque));
+          this->left_torque=(this->left_torque)*left_torque_sign;
+        }
+        else{
+          this->left_torque=left_torque_sign*min(stall_torque,abs(this->left_torque));
+        }       
+          // gzmsg << "left_torque: " << this->left_torque  << ", left_angvel: " << left_angvel<<std::endl;
+
+        if (right_torque_sign*right_angvel_sign>0){
+          double right_torque=max((-1/32.5)*((abs(right_angvel*60)/(2*M_PI))-77.5),0.0);
+          // gzmsg << "right_torque1: " << this->right_torque <<std::endl;
+
+          this->right_torque=min(right_torque,abs(this->right_torque));
+          this->right_torque=(this->right_torque)*right_torque_sign;
+        }
+        else{
+          this->right_torque=right_torque_sign*min(stall_torque,abs(this->right_torque));
+        }        
+        // gzmsg << "right_torque: " << this->right_torque    << ", right_angvel: " << right_angvel<<std::endl;
+        ignition::math::Vector3d left_link_torque(0, 0, this->left_torque);
+        ignition::math::Vector3d right_link_torque(0, 0, this->right_torque);
+        this->left_rear_wheel_link->AddRelativeTorque(left_link_torque);
+        this->right_rear_wheel_link->AddRelativeTorque(right_link_torque);
+        // this->left_wheel->SetForce(0, this->left_torque);
+        // this->right_wheel->SetForce(0, this->right_torque);
+        wheelMsgs.effort.push_back(this->left_torque);
+        wheelMsgs.effort.push_back(this->right_torque);
+
+        wheelstate_Publisher.publish(wheelMsgs);
+        // gzmsg << "right_measure_torque: " << right_measure_torque<< ",desired_right_torque: " << this->right_torque<<std::endl;
+        // 로그에 상태 출력
+        gzmsg <<  "right_angvel: " << right_angvel  << ", left_angvel: " << left_angvel<<std::endl;
+        ignition::math::Vector3d left_wheel_jointforce = this->left_wheel->LinkForce(1);
+        ignition::math::Vector3d right_wheel_jointforce = this->right_wheel->LinkForce(1);     
+        // ignition::math::Vector3d front_left_wheel_jointforce = this->front_left_wheel->LinkForce(1);
+        // ignition::math::Vector3d front_right_wheel_jointforce = this->front_right_wheel->LinkForce(1);     
+        // auto force1 = this->left_rear_wheel_link->WorldForce();
+        // auto force2 = this->right_rear_wheel_link->WorldForce();
+        // auto force3 = this->chassis->WorldForce();
+        // gazebo::physics::Collision_V collisions = this->right_rear_wheel_link->GetCollisions();
+        // std::cout << "collisions.size(): " << collisions[0]->GetModel()->GetName() << std::endl;
+        // std::cout << "collisions.size(): " << collisions.size() << std::endl;
+        // std::cout << "force2: " << force2 << std::endl;        
+        // gzmsg << "left_wheel_jointforce: " << left_wheel_jointforce << std::endl;
+        // gzmsg << "right_wheel_jointforce: " << right_wheel_jointforce << std::endl;
+        // gzmsg << "front_left_wheel_joint: " << front_left_wheel_jointforce << std::endl;
+        // gzmsg << "front_right_wheel_joint: " << front_right_wheel_jointforce << std::endl;
     }
+  private:
+    std::unique_ptr<ros::NodeHandle> rosNode;
+    event::ConnectionPtr updateConnection;
+    physics::ModelPtr model;
+    physics::JointPtr front_left_wheel;
+    physics::JointPtr front_right_wheel;
+    physics::JointPtr left_wheel;
+    physics::JointPtr right_wheel;
+    physics::LinkPtr chassis;
+    physics::LinkPtr left_front_wheel_link;
+    physics::LinkPtr right_front_wheel_link;
+    physics::LinkPtr left_rear_wheel_link;
+    physics::LinkPtr right_rear_wheel_link;
+    std::string right_wheel_jointName;
+    std::string left_wheel_jointName;
+    ros::Subscriber torque_Subscriber;
+    ros::Subscriber wheelvel_Subscriber;
+    ros::Subscriber imu_Subscriber;
+    ros::Publisher pose_Publisher;
+    ros::Publisher wheelstate_Publisher;
+    ros::Timer odometry_timer;
+    ros::Timer motor_timer;
+    common::PID left_velocityPID;
+    common::PID right_velocityPID;
+    double left_torque;
+    double right_torque;
+    double chassis_angvel[3];
+    double last_updatetime;
+    double desired_left_angvel;
+    double desired_right_angvel;
+    double wheel_p;
+    double wheel_i;
+    double wheel_d;
+    double stepsize;
+  };
 
-}
-void wheel_state_callback(const sensor_msgs::JointStateConstPtr &jointstate_msg){
-  left_wheel_angvel = (jointstate_msg->velocity)[0];
-  right_wheel_angvel = (jointstate_msg->velocity)[1];
-}
-int main(int argc, char** argv) {
-  ros::init(argc, argv, "cleanerNode");
-  ros::NodeHandle nh("~");
-  double init_target_x,init_target_y;
-  nh.param("/parameters/desired_velocity", desired_velocity, 0.2);
-
-  nh.param("/parameters/wheel_radius", wheel_radius, 0.0375);
-  nh.param("/parameters/init_target_x", init_target_x, 0.0);
-  nh.param("/parameters/init_target_y", init_target_y, 0.0);
-  nh.param("/parameters/theta_threshold",theta_threshold,0.02);
-  nh.param("/parameters/pos_threshold",pos_threshold,0.02);
-  nh.param("/parameters/rotation_p_gain", rotation_p_gain, 1.0);
-  nh.param("/parameters/rotation_d_gain",rotation_d_gain,0.02);
-  nh.param("/parameters/move_p_gain", move_p_gain, 1.0);
-  nh.param("/parameters/move_d_gain",move_d_gain,0.02);
-  target_on=true;
-  control_type=MOVE;
-  target_pos(0)=init_target_x;
-  target_pos(1)=init_target_y;
-  ros::Subscriber sub_odometry = nh.subscribe("/robot_cleaner/chassis_pose",2000,odometry_callback, ros::TransportHints().tcpNoDelay());
-  ros::Subscriber sub_wheelstate = nh.subscribe("/robot_cleaner/wheel_state",2000,wheel_state_callback, ros::TransportHints().tcpNoDelay());
-  pub_wheelvel = nh.advertise< cleaner_simulation::WheelVel>("/wheelvel_control", 1000);
-  // Spin
-  ros::AsyncSpinner spinner(2);  // Use n threads
-  spinner.start();
-  ros::waitForShutdown();
-  return 0;
+  GZ_REGISTER_MODEL_PLUGIN(ModelControlPlugin)
 }
