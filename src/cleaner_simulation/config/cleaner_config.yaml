@@ -7,6 +7,6 @@ parameters:
   theta_threshold: 0.01
   rotation_p_gain: 16.0
   rotation_d_gain: 2.5 
-  move_p_gain: 15.0
-  move_i_gain: 1.0
-  move_d_gain: 2.5
+  move_p_gain: 20.0
+  move_i_gain: 2.0
+  move_d_gain: 3.0
