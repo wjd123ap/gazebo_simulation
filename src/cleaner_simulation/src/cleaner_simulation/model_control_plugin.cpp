@@ -177,8 +177,7 @@ namespace gazebo
         // wheel_velocity
         wheelMsgs.velocity.push_back(left_angvel);
         wheelMsgs.velocity.push_back(right_angvel);
-        this->desired_left_angvel=3.2;
-        this->desired_right_angvel=3.2;
+
         // gzmsg << "desired_left_angvel: " << this->desired_left_angvel<< ",desired_right_angvel: " << this->desired_right_angvel<<std::endl;
         double left_error = left_angvel - this->desired_left_angvel;
         double right_error = right_angvel - this->desired_right_angvel;
@@ -224,7 +223,7 @@ namespace gazebo
         wheelstate_Publisher.publish(wheelMsgs);
         // gzmsg << "right_measure_torque: " << right_measure_torque<< ",desired_right_torque: " << this->right_torque<<std::endl;
         // 로그에 상태 출력
-        gzmsg <<  "right_angvel: " << right_angvel  << ", left_angvel: " << left_angvel<<std::endl;
+        // gzmsg <<  "right_angvel: " << right_angvel  << ", left_angvel: " << left_angvel<<std::endl;
         ignition::math::Vector3d left_wheel_jointforce = this->left_wheel->LinkForce(1);
         ignition::math::Vector3d right_wheel_jointforce = this->right_wheel->LinkForce(1);     
         // ignition::math::Vector3d front_left_wheel_jointforce = this->front_left_wheel->LinkForce(1);
