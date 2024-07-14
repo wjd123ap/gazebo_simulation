@@ -177,10 +177,12 @@ namespace gazebo
         // wheel_velocity
         wheelMsgs.velocity.push_back(left_angvel);
         wheelMsgs.velocity.push_back(right_angvel);
-        gzmsg << "desired_left_angvel: " << this->desired_left_angvel<< ",desired_right_angvel: " << this->desired_right_angvel<<std::endl;
+        this->desired_left_angvel=3.2;
+        this->desired_right_angvel=3.2;
+        // gzmsg << "desired_left_angvel: " << this->desired_left_angvel<< ",desired_right_angvel: " << this->desired_right_angvel<<std::endl;
         double left_error = left_angvel - this->desired_left_angvel;
         double right_error = right_angvel - this->desired_right_angvel;
-        gzmsg << "left_error: " <<left_error  << ", right_error: " << right_error<<std::endl;
+        // gzmsg << "left_error: " <<left_error  << ", right_error: " << right_error<<std::endl;
 
         this->left_torque = this -> left_velocityPID.Update(left_error, steptime);
         this->right_torque = this -> right_velocityPID.Update(right_error, steptime);
@@ -209,7 +211,7 @@ namespace gazebo
         else{
           this->right_torque=right_torque_sign*min(stall_torque,abs(this->right_torque));
         }        
-        gzmsg << "right_torque: " << this->right_torque    << ", right_angvel: " << right_angvel<<std::endl;
+        // gzmsg << "right_torque: " << this->right_torque    << ", right_angvel: " << right_angvel<<std::endl;
         ignition::math::Vector3d left_link_torque(0, 0, this->left_torque);
         ignition::math::Vector3d right_link_torque(0, 0, this->right_torque);
         this->left_rear_wheel_link->AddRelativeTorque(left_link_torque);
@@ -222,8 +224,8 @@ namespace gazebo
         wheelstate_Publisher.publish(wheelMsgs);
         // gzmsg << "right_measure_torque: " << right_measure_torque<< ",desired_right_torque: " << this->right_torque<<std::endl;
         // 로그에 상태 출력
-        // gzmsg << "left_wheel_angle: " << normalized_left_angle  << ", left_angvel: " << left_angvel<<std::endl;
-        // gzmsg << "right_wheel_angle: " << normalized_right_angle  << ", right_angvel: " << right_angvel<<std::endl;
+        gzmsg << "left_wheel_angle: " << normalized_left_angle  << ", left_angvel: " << left_angvel<<std::endl;
+        gzmsg << "right_wheel_angle: " << normalized_right_angle  << ", right_angvel: " << right_angvel<<std::endl;
         ignition::math::Vector3d left_wheel_jointforce = this->left_wheel->LinkForce(1);
         ignition::math::Vector3d right_wheel_jointforce = this->right_wheel->LinkForce(1);     
         // ignition::math::Vector3d front_left_wheel_jointforce = this->front_left_wheel->LinkForce(1);
@@ -235,8 +237,8 @@ namespace gazebo
         // std::cout << "collisions.size(): " << collisions[0]->GetModel()->GetName() << std::endl;
         // std::cout << "collisions.size(): " << collisions.size() << std::endl;
         // std::cout << "force2: " << force2 << std::endl;        
-        gzmsg << "left_wheel_jointforce: " << left_wheel_jointforce << std::endl;
-        gzmsg << "right_wheel_jointforce: " << right_wheel_jointforce << std::endl;
+        // gzmsg << "left_wheel_jointforce: " << left_wheel_jointforce << std::endl;
+        // gzmsg << "right_wheel_jointforce: " << right_wheel_jointforce << std::endl;
         // gzmsg << "front_left_wheel_joint: " << front_left_wheel_jointforce << std::endl;
         // gzmsg << "front_right_wheel_joint: " << front_right_wheel_jointforce << std::endl;
     }
