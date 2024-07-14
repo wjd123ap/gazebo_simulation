@@ -165,7 +165,7 @@
     </gui>
 
     <model name='chair'>
-      <pose>0.6966 -0.53 -0.01 0 0 0</pose>
+      <pose>0.6966 -2.53 -0.01 0 0 0</pose>
       <link name='body'>   
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
@@ -269,7 +269,7 @@
 
     <model name='chair_frame1'>
         <!-- <pose>1.20087 0 0.013622 1.57079632679 -0 0</pose> -->
-        <pose>1.20087 0 0.00 0 -0 0</pose>
+        <pose>1.20087 2 0.00 0 -0 0</pose>
       <link name='body'>
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
@@ -341,7 +341,7 @@
     </model>
 
     <model name='scales'>
-      <pose>0.60087 0.0031 0.01 1.57079632679 -0 0</pose>
+      <pose>0.60087 1.0031 0.01 1.57079632679 -0 0</pose>
       <link name='body'>
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
@@ -412,7 +412,7 @@
     </model>
 
     <model name='door_frame'>
-      <pose>1.7 0 -0.016 0 0 0</pose>
+      <pose>1.7 2 -0.016 0 0 0</pose>
       <link name='body'>
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
@@ -518,9 +518,9 @@
 
     <model name='robot_cleaner'>
       <plugin name='cleaner' filename='libmodel_control_plugin.so'>
-        <wheel_p_gain>1.0</wheel_p_gain>
-        <wheel_i_gain>0.3</wheel_i_gain>
-        <wheel_d_gain>0.00</wheel_d_gain>
+        <wheel_p_gain>1.3</wheel_p_gain>
+        <wheel_i_gain>0.01</wheel_i_gain>
+        <wheel_d_gain>0.0</wheel_d_gain>
         <motor_updateRateHZ>1000.00</motor_updateRateHZ>
       </plugin>
       <static>0</static>
@@ -808,6 +808,7 @@
             <upper>1e+16</upper>
           </limit>
           <dynamics>
+            <friction>0.002</friction>
             <spring_reference>0</spring_reference>
             <spring_stiffness>0</spring_stiffness>
           </dynamics>
@@ -821,9 +822,9 @@
           <pose>0 0 0 0 -0 0</pose>
           <mass>0.01</mass>
           <inertia>
-            <ixx>2.8e-07</ixx>
-            <iyy>2.8e-07</iyy>
-            <izz>5.000000000000001e-07</izz>
+            <ixx>1.5250000000000002e-07</ixx>
+            <iyy>1.5250000000000002e-07</iyy>
+            <izz>2.4500000000000004e-07</izz>
             <ixy>0</ixy>
             <ixz>0</ixz>
             <iyz>0</iyz>
@@ -912,6 +913,7 @@
             <upper>1e+16</upper>
           </limit>
           <dynamics>
+          
             <spring_reference>0</spring_reference>
             <spring_stiffness>0</spring_stiffness>
           </dynamics>
@@ -1023,6 +1025,7 @@
             <upper>1e+16</upper>
           </limit>
           <dynamics>
+            <friction>0.002</friction>
             <spring_reference>0</spring_reference>
             <spring_stiffness>0</spring_stiffness>
           </dynamics>
@@ -1134,6 +1137,7 @@
             <upper>1e+16</upper>
           </limit>
           <dynamics>
+            <friction>0.002</friction>
             <spring_reference>0</spring_reference>
             <spring_stiffness>0</spring_stiffness>
           </dynamics>
@@ -1498,6 +1502,7 @@
             <upper>1e+16</upper>
           </limit>
           <dynamics>
+            <friction>0.002</friction>
             <spring_reference>0</spring_reference>
             <spring_stiffness>0</spring_stiffness>
           </dynamics>
@@ -1516,6 +1521,7 @@
             <upper>1e+16</upper>
           </limit>
           <dynamics>
+            <friction>0.002</friction>
             <spring_reference>0</spring_reference>
             <spring_stiffness>0</spring_stiffness>
           </dynamics>

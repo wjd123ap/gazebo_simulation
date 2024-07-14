@@ -62,7 +62,7 @@ void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
     double error_theta= calculate_clockwise_difference(theta,desired_theta);
     double desired_left_angvel,desired_right_angvel;
 
-    cout<<"current_theta:"<<theta<<", desired_theta:"<<desired_theta<<endl;
+    // cout<<"current_theta:"<<theta<<", desired_theta:"<<desired_theta<<endl;
     if ((abs(error_theta)>M_PI/36)&(control_type==MOVE)){
       control_type=ROTATION;
       previous_error_theta=error_theta;
@@ -72,7 +72,7 @@ void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
     if (control_type==ROTATION){
 
       if (abs(error_theta)>theta_threshold){
-      cout<<"error_theta2:"<<error_theta<<endl;
+      // cout<<"error_theta2:"<<error_theta<<endl;
         double error_theta_dot = (error_theta-previous_error_theta);
         double command_angvel = rotation_p_gain*error_theta+rotation_d_gain*error_theta_dot;
         desired_left_angvel = - command_angvel;
