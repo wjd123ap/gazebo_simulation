@@ -1203,7 +1203,7 @@
                 <soft_cfm>0</soft_cfm>
                 <soft_erp>0</soft_erp>
                 <kp>10000</kp>
-                <kd>10</kd>
+                <kd>8</kd>
                 <max_vel>10.0</max_vel>
                 <min_depth>0</min_depth>
               </ode>
@@ -1341,7 +1341,7 @@
                 <soft_cfm>0</soft_cfm>
                 <soft_erp>0</soft_erp>
                 <kp>10000</kp>
-                <kd>10</kd>
+                <kd>8</kd>
                 <max_vel>10.0</max_vel>
                 <min_depth>0.00</min_depth>
               </ode>
