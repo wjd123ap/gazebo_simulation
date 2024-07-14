@@ -146,36 +146,8 @@
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
-      <model name='chair_frame1'>
-        <pose>-0.047287 -1.12546 0.013622 1.57079632679 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='body'>
-          <pose>-0.047287 -1.12546 0.013622 1.57079632679 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='chair_frame2'>
-        <pose>0.301204 -1.12773 0.013652 1.57079632679 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='body'>
-          <pose>0.301204 -1.12773 0.013652 1.57079632679 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='door_frame'>
-        <pose>1.16242 0.200333 -0.010499 -3.14159 0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='body'>
-          <pose>1.16242 0.200333 -0.010499 -3.14159 0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
+
+
       <model name='ground_plane'>
         <pose>0 0 0 0 -0 0</pose>
         <scale>1 1 1</scale>
@@ -353,6 +325,7 @@
       <pose>0 0 0 0 -0 0</pose>
     </model>
     <model name='chair_frame2'>
+      <pose>0.160087 -1.03231 0.013622 1.57079632679 -0 0</pose>
       <link name='body'>
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
@@ -378,7 +351,7 @@
               <scale>0.001 0.001 0.001</scale>
             </mesh>
           </geometry>
-          <max_contacts>10</max_contacts>
+          <max_contacts>100</max_contacts>
           <surface>
             <contact>
               <ode/>
@@ -419,7 +392,7 @@
       </link>
       <static>1</static>
       <allow_auto_disable>1</allow_auto_disable>
-      <pose>0.160087 -1.03231 0.013622 1.57079632679 -0 0</pose>
+
     </model>
     <model name='scales'>
       <link name='body'>

@@ -67,16 +67,16 @@ namespace gazebo
         this->rosNode.reset(new ros::NodeHandle("robot_cleaner"));
         this->left_wheel = _model->GetJoint("wheel_rear_left_spin");
         this->right_wheel = _model->GetJoint("wheel_rear_right_spin");
-        this->front_left_wheel = _model->GetJoint("wheel_front_left_spin");
-        this->front_right_wheel = _model->GetJoint("wheel_front_right_spin");
-        this->front_left_wheel->SetProvideFeedback(true);
-        this->front_right_wheel->SetProvideFeedback(true); 
+        // this->front_left_wheel = _model->GetJoint("wheel_front_left_spin");
+        // this->front_right_wheel = _model->GetJoint("wheel_front_right_spin");
+        // this->front_left_wheel->SetProvideFeedback(true);
+        // this->front_right_wheel->SetProvideFeedback(true); 
         this->left_wheel->SetProvideFeedback(true);
         this->right_wheel->SetProvideFeedback(true); 
         this->left_rear_wheel_link= _model->GetLink("wheel_rear_left");
         this->right_rear_wheel_link= _model->GetLink("wheel_rear_right");
-        this->left_front_wheel_link= _model->GetLink("wheel_front_left");
-        this->right_front_wheel_link= _model->GetLink("wheel_front_right");
+        // this->left_front_wheel_link= _model->GetLink("wheel_front_left");
+        // this->right_front_wheel_link= _model->GetLink("wheel_front_right");
         this->last_updatetime=0;
         this->left_torque = 0;
         this->right_torque = 0;
@@ -226,8 +226,8 @@ namespace gazebo
         // gzmsg << "right_wheel_angle: " << normalized_right_angle  << ", right_angvel: " << right_angvel<<std::endl;
         ignition::math::Vector3d left_wheel_jointforce = this->left_wheel->LinkForce(1);
         ignition::math::Vector3d right_wheel_jointforce = this->right_wheel->LinkForce(1);     
-        ignition::math::Vector3d front_left_wheel_jointforce = this->front_left_wheel->LinkForce(1);
-        ignition::math::Vector3d front_right_wheel_jointforce = this->front_right_wheel->LinkForce(1);     
+        // ignition::math::Vector3d front_left_wheel_jointforce = this->front_left_wheel->LinkForce(1);
+        // ignition::math::Vector3d front_right_wheel_jointforce = this->front_right_wheel->LinkForce(1);     
         // auto force1 = this->left_rear_wheel_link->WorldForce();
         // auto force2 = this->right_rear_wheel_link->WorldForce();
         // auto force3 = this->chassis->WorldForce();
@@ -237,8 +237,8 @@ namespace gazebo
         // std::cout << "force2: " << force2 << std::endl;        
         gzmsg << "left_wheel_jointforce: " << left_wheel_jointforce << std::endl;
         gzmsg << "right_wheel_jointforce: " << right_wheel_jointforce << std::endl;
-        gzmsg << "front_left_wheel_joint: " << front_left_wheel_jointforce << std::endl;
-        gzmsg << "front_right_wheel_joint: " << front_right_wheel_jointforce << std::endl;
+        // gzmsg << "front_left_wheel_joint: " << front_left_wheel_jointforce << std::endl;
+        // gzmsg << "front_right_wheel_joint: " << front_right_wheel_jointforce << std::endl;
     }
   private:
     std::unique_ptr<ros::NodeHandle> rosNode;

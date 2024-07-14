@@ -70,7 +70,7 @@
               </bullet>
             </contact>
           </surface>
-          <max_contacts>10</max_contacts>
+          <max_contacts>10000</max_contacts>
         </collision>
         <visual name='visual'>
           <cast_shadows>0</cast_shadows>
@@ -137,26 +137,7 @@
       <wall_time>1720514551 614704389</wall_time>
       <iterations>0</iterations>
 
-      <model name='chair_frame1'>
-        <pose>-0.047287 -1.12546 0.013622 1.57079632679 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='body'>
-          <pose>-0.047287 -1.12546 0.013622 1.57079632679 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='chair_frame2'>
-        <pose>0.301204 -1.12773 0.013652 1.57079632679 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='body'>
-          <pose>0.301204 -1.12773 0.013652 1.57079632679 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
+
 
       <model name='ground_plane'>
         <pose>0 0 0 0 -0 0</pose>
@@ -168,23 +149,8 @@
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
-      <model name='robot_cleaner'>
-        <pose>0 0 0 0 -0 0</pose>
-        <scale>1 1 1</scale>
 
 
-
-      </model>
-      <model name='scales'>
-        <pose>0.160087 1.32621 0.012876 1.57079632679 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='body'>
-          <pose>0.160087 1.32621 0.012876 1.57079632679 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
       <light name='sun'>
         <pose>0 0 10 0 -0 0</pose>
       </light>
@@ -197,11 +163,12 @@
       </camera>
     </gui>
     <model name='chair'>
-      <link name='body'>
+      <pose>0.6966 -0.53 -0.01 -3.14159 0 0</pose>
+      <link name='body'>   
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
         <kinematic>1</kinematic>
-        <pose>0.6966 -0.03 -0.01 -3.14159 0 0</pose>
+
         <gravity>1</gravity>
         <inertial>
           <mass>1</mass>
@@ -222,18 +189,51 @@
               <scale>0.001 0.001 0.001</scale>
             </mesh>
           </geometry>
-          <max_contacts>10</max_contacts>
+          <max_contacts>100</max_contacts>
           <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
             <friction>
+              <ode>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
+                <fdir1>0 0 0</fdir1>
+                <slip1>0.0</slip1>
+                <slip2>0.0</slip2>
+              </ode>
               <torsional>
-                <ode/>
+                <coefficient>1</coefficient>
+                <patch_radius>0</patch_radius>
+                <surface_radius>0</surface_radius>
+                <use_patch_radius>1</use_patch_radius>
+                <ode>
+                  <slip>0</slip>
+                </ode>
               </torsional>
-              <ode/>
             </friction>
+            <bounce>
+              <restitution_coefficient>0</restitution_coefficient>
+              <threshold>1e+06</threshold>
+            </bounce>
+            <contact>
+              <collide_without_contact>0</collide_without_contact>
+              <collide_without_contact_bitmask>1</collide_without_contact_bitmask>
+              <collide_bitmask>65535</collide_bitmask>
+              <ode>
+                <soft_cfm>0</soft_cfm>
+                <soft_erp>0</soft_erp>
+                <kp>1e+13</kp>
+                <kd>1</kd>
+                <max_vel>2</max_vel>
+                <min_depth>0</min_depth>
+              </ode>
+              <bullet>
+                <split_impulse>1</split_impulse>
+                <split_impulse_penetration_threshold>-0.01</split_impulse_penetration_threshold>
+                <soft_cfm>0</soft_cfm>
+                <soft_erp>0</soft_erp>
+                <kp>1e+13</kp>
+                <kd>1</kd>
+              </bullet>
+            </contact>
           </surface>
         </collision>
         <visual name='visual'>
@@ -266,6 +266,7 @@
       <pose>0 0 0 0 -0 0</pose>
     </model>
     <model name='chair_frame1'>
+        <pose>0.50087 1.03231 0.013622 1.57079632679 -0 0</pose>
       <link name='body'>
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
@@ -335,6 +336,7 @@
 
     </model>
     <model name='chair_frame2'>
+      <pose>0.50087 1.03231 0.013622 1.57079632679 -0 0</pose>
       <link name='body'>
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
@@ -401,9 +403,10 @@
       </link>
       <static>1</static>
       <allow_auto_disable>1</allow_auto_disable>
-      <pose>0.160087 -1.03231 0.013622 1.57079632679 -0 0</pose>
+
     </model>
     <model name='scales'>
+      <pose>0.60087 0.0031 0.01 1.57079632679 -0 0</pose>
       <link name='body'>
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
@@ -429,7 +432,7 @@
               <scale>0.001 0.001 0.001</scale>
             </mesh>
           </geometry>
-          <max_contacts>10</max_contacts>
+          <max_contacts>100</max_contacts>
           <surface>
             <contact>
               <ode/>
@@ -470,11 +473,11 @@
       </link>
       <static>1</static>
       <allow_auto_disable>1</allow_auto_disable>
-      <pose>0.160087 -1.03231 0.013622 1.57079632679 -0 0</pose>
+
     </model>
 
     <model name='door_frame'>
-      <pose>1.16242 1.200333 -0.010499 -3.14159 0 0</pose>
+      <pose>0.50242 1.2 -0.010499 -3.14159 0 0</pose>
       <link name='body'>
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
@@ -519,7 +522,7 @@
         </visual>
         <collision name='collision'>
           <laser_retro>0</laser_retro>
-          <max_contacts>1000</max_contacts>
+          <max_contacts>200</max_contacts>
           <pose>0 0 0 0 -0 0</pose>
           <geometry>
             <mesh>
@@ -530,8 +533,8 @@
           <surface>
             <friction>
               <ode>
-                <mu>0.25</mu>
-                <mu2>0.25</mu2>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
                 <fdir1>0 0 0</fdir1>
                 <slip1>0.02</slip1>
                 <slip2>0.02</slip2>
@@ -593,7 +596,7 @@
         <self_collide>0</self_collide>
         <pose>0 0 0.018 0 -0 0</pose>
         <inertial>
-          <pose>0 0 0.054838554 0 -0 0</pose>
+          <pose>0.0 0 0.054838554 0 -0 0</pose>
           <mass>4</mass>
           <inertia>
             <ixx>2.7118881e-02</ixx>
@@ -615,8 +618,8 @@
           <surface>
             <friction>
               <ode>
-                <mu>0.2</mu>
-                <mu2>0.2</mu2>
+                <mu>0.1</mu>
+                <mu2>0.1</mu2>
                 <fdir1>0 0 0</fdir1>
                 <slip1>0.05</slip1>
                 <slip2>0.05</slip2>
@@ -669,8 +672,8 @@
           <surface>
             <friction>
               <ode>
-                <mu>0.08</mu>
-                <mu2>0.08</mu2>
+                <mu>0.05</mu>
+                <mu2>0.05</mu2>
                 <fdir1>0 0 0</fdir1>
                 <slip1>0.01</slip1>
                 <slip2>0.01</slip2>
@@ -845,91 +848,7 @@
         <kinematic>0</kinematic>
       </link>
 
-      <!-- <link name='steer_wheel'>
-        <self_collide>0</self_collide>
-        <pose>-0.09 0 0.008 -1.57079632679 0 0</pose>
-        <inertial>
-          <mass>0.01</mass>
-          <inertia>
-            <ixx>2.8e-07</ixx>
-            <iyy>2.8e-07</iyy>
-            <izz>5.000000000000001e-07</izz>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyz>0</iyz>
-          </inertia>
-          <pose>0 0 0 0 -0 0</pose>
-        </inertial>
-        <collision name='collision'>
-          <geometry>
-            <sphere>
-              <radius>0.008</radius>
 
-            </sphere>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <ode>
-                <mu>1000</mu>
-                <mu2>1000</mu2>
-                <fdir1>0 0 0</fdir1>
-                <slip1>0.0</slip1>
-                <slip2>0.0</slip2>
-              </ode>
-              <torsional>
-                <ode/>
-              </torsional>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='visual'>
-          <geometry>
-            <sphere>
-              <radius>0.008</radius>
-
-            </sphere>
-          </geometry>
-          <material>
-            <script>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Black</name>
-            </script>
-          </material>
-        </visual>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-      <joint name='steer_wheel_spin' type='universal'>
-        <parent>chassis</parent>
-        <child>steer_wheel</child>
-        <axis>
-          <xyz>0 -1 0</xyz>
-          <limit>
-            <upper>1e+16</upper>
-            <lower>-1e+16</lower>
-          </limit>
-          <dynamics>
-            <spring_reference>0</spring_reference>
-            <spring_stiffness>0</spring_stiffness>
-          </dynamics>
-        </axis>
-        <axis2>
-          <xyz>0 0 1</xyz>
-          <limit>
-            <upper>1e+16</upper>
-            <lower>-1e+16</lower>
-          </limit>
-          <dynamics>
-            <spring_reference>0</spring_reference>
-            <spring_stiffness>0</spring_stiffness>
-          </dynamics>
-        </axis2>
-      </joint> -->
 
       
       <link name='wheel_front_left'>
@@ -957,11 +876,11 @@
           <surface>
             <friction>
               <ode>
-                <mu>1</mu>
-                <mu2>1</mu2>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
                 <fdir1>0 0 0</fdir1>
-                <slip1>0.0</slip1>
-                <slip2>0.0</slip2>
+                <slip1>0.01</slip1>
+                <slip2>0.01</slip2>
               </ode>
               <torsional>
                 <coefficient>1</coefficient>
@@ -973,10 +892,7 @@
                 </ode>
               </torsional>
             </friction>
-            <bounce>
-              <restitution_coefficient>0</restitution_coefficient>
-              <threshold>1e+06</threshold>
-            </bounce>
+
             <contact>
               <collide_without_contact>0</collide_without_contact>
               <collide_without_contact_bitmask>1</collide_without_contact_bitmask>
@@ -1021,7 +937,6 @@
           </plugin>
           <contact>
             <collision>collision</collision>
-            
           </contact>
         </sensor>
         <enable_wind>0</enable_wind>
@@ -1071,11 +986,11 @@
           <surface>
             <friction>
               <ode>
-                <mu>1000</mu>
-                <mu2>1000</mu2>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
                 <fdir1>0 0 0</fdir1>
-                <slip1>0.0</slip1>
-                <slip2>0.0</slip2>
+                <slip1>0.02</slip1>
+                <slip2>0.02</slip2>
               </ode>
               <torsional>
                 <coefficient>1</coefficient>
@@ -1087,10 +1002,7 @@
                 </ode>
               </torsional>
             </friction>
-            <bounce>
-              <restitution_coefficient>0</restitution_coefficient>
-              <threshold>1e+06</threshold>
-            </bounce>
+
             <contact>
               <collide_without_contact>0</collide_without_contact>
               <collide_without_contact_bitmask>1</collide_without_contact_bitmask>
@@ -1141,6 +1053,8 @@
         <self_collide>0</self_collide>
         <kinematic>0</kinematic>
       </link>
+
+
       <joint name='wheel_front_right_spin' type='revolute'>
         <parent>chassis</parent>
         <child>wheel_front_right</child>
@@ -1156,6 +1070,9 @@
           </dynamics>
         </axis>
       </joint>
+
+
+
       <link name='wheel_rear_right'>
         <pose>0 -0.114 0.0375 -1.57079632679 0 0</pose>
         <inertial>
@@ -1172,13 +1089,16 @@
         </inertial>
         <collision name='collision'>
           <geometry>
-
-            <cylinder>
+            <mesh>
+              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/wheel_gear.stl</uri>
+              <scale>0.002 0.002 0.001</scale>
+            </mesh>
+            <!-- <cylinder>
               <radius>0.0375</radius>
               <length>0.017</length>
-            </cylinder>
+            </cylinder> -->
           </geometry>
-          <max_contacts>10</max_contacts>
+          <max_contacts>40</max_contacts>
           <surface>
             <friction>
               <ode>
@@ -1209,8 +1129,8 @@
               <ode>
                 <soft_cfm>0</soft_cfm>
                 <soft_erp>0</soft_erp>
-                <kp>1e+13</kp>
-                <kd>1</kd>
+                <kp>10000</kp>
+                <kd>10</kd>
                 <max_vel>10.0</max_vel>
                 <min_depth>0</min_depth>
               </ode>
@@ -1227,11 +1147,14 @@
         </collision>
         <visual name='visual'>
           <geometry>
-
-            <cylinder>
+            <mesh>
+              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/wheel_gear.stl</uri>
+              <scale>0.002 0.002 0.001</scale>
+            </mesh>
+            <!-- <cylinder>
               <radius>0.0375</radius>
               <length>0.017</length>
-            </cylinder>
+            </cylinder> -->
           </geometry>
           <material>
             <script>
@@ -1304,12 +1227,16 @@
         </inertial>
         <collision name='collision'>
           <geometry>
-            <cylinder>
+            <mesh>
+              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/wheel_gear.stl</uri>
+              <scale>0.002 0.002 0.001</scale>
+            </mesh>
+            <!-- <cylinder>
               <radius>0.0375</radius>
               <length>0.017</length>
-            </cylinder>
+            </cylinder> -->
           </geometry>
-          <max_contacts>10</max_contacts>
+          <max_contacts>40</max_contacts>
           <surface>
             <friction>
               <ode>
@@ -1340,10 +1267,10 @@
               <ode>
                 <soft_cfm>0</soft_cfm>
                 <soft_erp>0</soft_erp>
-                <kp>1e+13</kp>
-                <kd>1</kd>
+                <kp>10000</kp>
+                <kd>10</kd>
                 <max_vel>10.0</max_vel>
-                <min_depth>0</min_depth>
+                <min_depth>0.00</min_depth>
               </ode>
               <bullet>
                 <split_impulse>1</split_impulse>
@@ -1358,11 +1285,14 @@
         </collision>
         <visual name='visual'>
           <geometry>
-
-            <cylinder>
+            <mesh>
+              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/wheel_gear.stl</uri>
+              <scale>0.002 0.002 0.001</scale>
+            </mesh>
+            <!-- <cylinder>
               <radius>0.0375</radius>
               <length>0.017</length>
-            </cylinder>
+            </cylinder> -->
           </geometry>
           <material>
             <script>
@@ -1430,9 +1360,9 @@
           </limit>
 
         <dynamics>
-          <damping>8</damping>
-          <spring_stiffness>50</spring_stiffness>
-          <spring_reference>-0.04</spring_reference>
+          <damping>20</damping>
+          <spring_stiffness>200</spring_stiffness>
+          <spring_reference>-0.05</spring_reference>
         </dynamics>
       </axis>
       <physics>
@@ -1449,23 +1379,6 @@
       </physics>
 
     </joint>
-
-      <joint name='wheel_rear_right_spin' type='revolute'>
-        <parent>susp_rear_right</parent>
-
-        <child>wheel_rear_right</child>
-        <axis>
-          <xyz>0 0 1</xyz>
-          <limit>
-            <lower>-1e+16</lower>
-            <upper>1e+16</upper>
-          </limit>
-          <dynamics>
-            <spring_reference>0</spring_reference>
-            <spring_stiffness>0</spring_stiffness>
-          </dynamics>
-        </axis>
-      </joint>
       <joint name="susp_rear_left_prismatic" type="prismatic">
         
         <parent>chassis</parent>
@@ -1487,9 +1400,9 @@
             <upper>0</upper>
           </limit>
           <dynamics>
-          <damping>8</damping>
-          <spring_stiffness>50</spring_stiffness>
-          <spring_reference>-0.04</spring_reference>
+          <damping>20</damping>
+          <spring_stiffness>200</spring_stiffness>
+          <spring_reference>-0.05</spring_reference>
           </dynamics>
         </axis>
       <physics>
@@ -1506,6 +1419,23 @@
       </physics>
 
       </joint>
+      <joint name='wheel_rear_right_spin' type='revolute'>
+        <parent>susp_rear_right</parent>
+
+        <child>wheel_rear_right</child>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit>
+            <lower>-1e+16</lower>
+            <upper>1e+16</upper>
+          </limit>
+          <dynamics>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+        </axis>
+      </joint>
+
 
       <joint name='wheel_rear_left_spin' type='revolute'>
         <!-- <parent>chassis</parent> -->

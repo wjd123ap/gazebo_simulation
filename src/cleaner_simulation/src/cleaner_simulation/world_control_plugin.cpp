@@ -11,7 +11,7 @@ namespace gazebo
     void Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
     {
       this->world = _world;
-      physics::PresetManagerPtr presetManager = this->world->PresetMgr();
+
       if (!ros::isInitialized())
       {
         int argc = 0;
@@ -40,10 +40,10 @@ namespace gazebo
 
       physicsMsg.set_max_step_size(0.0002);
       physicsMsg.set_real_time_update_rate(5000);
-      physicsMsg.set_contact_surface_layer(0.0001);
+      physicsMsg.set_contact_surface_layer(0.001);
       // physicsMsg.set_solver_type("world");
       physicsPub->Publish(physicsMsg);
-      // presetManager->SetCurrentProfileParam("solver", "world");
+
 
     }
 
