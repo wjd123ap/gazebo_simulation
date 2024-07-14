@@ -61,7 +61,7 @@ void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
     double error_theta= calculate_clockwise_difference(theta,desired_theta);
     double desired_left_angvel,desired_right_angvel;
 
-    cout<<"error_theta1:"<<error_theta<<endl;
+    cout<<"current_theta:"<<theta<<",  desired_theta:"<<desired_theta<<endl;
     if ((abs(error_theta)>M_PI/36)&(control_type==MOVE)){
       control_type=ROTATION;
       previous_error_theta=error_theta;
@@ -85,13 +85,13 @@ void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
           desired_right_angvel = 0;
       }
     }
-    else{
-        double desired_theta_dot = (target_offset(0)*chassis_velocity(1) - target_offset(1)*chassis_velocity(0))/(target_offset(0)*target_offset(0)+target_offset(1)*target_offset(1)); 
-        double error_theta_dot = desired_theta_dot-chassis_angular(2);
-        double command_angvel = move_p_gain*error_theta+move_d_gain*error_theta_dot;
-        desired_left_angvel = (desired_velocity/wheel_radius) - command_angvel;
-        desired_right_angvel = (desired_velocity/wheel_radius) + command_angvel;
-    }
+    // else{
+    //     double desired_theta_dot = (target_offset(0)*chassis_velocity(1) - target_offset(1)*chassis_velocity(0))/(target_offset(0)*target_offset(0)+target_offset(1)*target_offset(1)); 
+    //     double error_theta_dot = desired_theta_dot-chassis_angular(2);
+    //     double command_angvel = move_p_gain*error_theta+move_d_gain*error_theta_dot;
+    //     desired_left_angvel = (desired_velocity/wheel_radius) - command_angvel;
+    //     desired_right_angvel = (desired_velocity/wheel_radius) + command_angvel;
+    // }
 
     // cout<<"desired_left_angvel:"<<desired_left_angvel<<endl;
     // cout<<"desired_right_angvel:"<<desired_right_angvel<<endl;
