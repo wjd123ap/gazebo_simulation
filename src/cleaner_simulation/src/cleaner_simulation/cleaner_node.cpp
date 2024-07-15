@@ -14,8 +14,9 @@ CONTROL_TYPE control_type;
 
 Eigen::Vector2d target_pos;
 ros::Publisher pub_wheelvel;
-double wheel_radius, desired_velocity, pos_threshold,theta_threshold,move_p_gain,move_i_gain,move_d_gain,rotation_p_gain,rotation_d_gain;
-double left_wheel_angvel, right_wheel_angvel,previous_error_theta,integral_error_theta,constant_wheel_vel;
+const double wheel_radius, desired_velocity, pos_threshold,theta_threshold,move_p_gain,move_i_gain,move_d_gain,rotation_p_gain,rotation_d_gain;
+double left_wheel_angvel, right_wheel_angvel,previous_error_theta,integral_error_theta;
+const double constant_wheel_vel;
 
 double normalize_angle(double angle) {
     // Normalize angle to be within -PI and PI
