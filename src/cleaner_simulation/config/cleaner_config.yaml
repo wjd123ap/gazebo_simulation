@@ -1,6 +1,8 @@
 parameters:
   desired_velocity: 0.15
   wheel_radius: 0.0375
+  chassis_mass: 4
+  chassis_radius: 0.114
   init_target_x: 1.5
   init_target_y: 0
   pos_threshold: 0.02

@@ -13,8 +13,29 @@
 #include <cmath>
 #include <algorithm>
 #include <sensor_msgs/JointState.h>
+#include <random>
+#include <Eigen/Core>
+#include <Eigen/Dense>
 using namespace std;
-double stall_torque=(77.5/32.5);
+const double stall_torque=(77.5/32.5);
+const double alpha=0.5;
+const  double odometry_timer_interval = (1.0)/200;
+std::mt19937 gen1(123456); // 난수 엔진 초기화
+std::mt19937 gen2(12145); // 난수 엔진 초기화
+
+
+std::normal_distribution<double> velocity_white_noise(0.0, 0.008);
+std::normal_distribution<double> orientation_white_noise(0.0, 0.002);
+
+
+double last_pos_x_n=0.0,last_pos_y_n=0.0;
+double last_vel_x_n=velocity_white_noise(gen1);
+double last_vel_y_n=velocity_white_noise(gen1);
+double last_orientation_x_n = orientation_white_noise(gen2);
+double last_orientation_y_n = orientation_white_noise(gen2);
+double last_orientation_z_n = orientation_white_noise(gen2);
+double last_orientation_w_n = orientation_white_noise(gen2);
+
 namespace gazebo
 {
   class ModelControlPlugin : public ModelPlugin
@@ -60,7 +81,7 @@ namespace gazebo
           motor_hz=_sdf->Get<double>("motor_updateRateHZ");
         }
         this->model = _model;
-        double odometry_timer_interval = (1.0)/200;
+
 
         this->stepsize = (1.0)/motor_hz;
         cout<<"this->stepsize:"<<this->stepsize<<endl;
@@ -87,6 +108,7 @@ namespace gazebo
         this->last_right_wheel_angle = 0;
         left_error_integral=0;
         right_error_integral=0;
+
         this->left_velocityPID.Init(this->wheel_p, this->wheel_i, this->wheel_d, 1.0, -1.0, stall_torque, -stall_torque);
         this->right_velocityPID.Init(this->wheel_p, this->wheel_i, this->wheel_d, 1.0, -1.0, stall_torque, -stall_torque);
         std::cout << " Joint Name: " << this->right_wheel->GetName() << ", Type: " << this->right_wheel->GetType() << std::endl;
@@ -130,20 +152,44 @@ namespace gazebo
       nav_msgs::Odometry odometry;
       odometry.header.frame_id = "world";
       odometry.header.stamp = ros::Time::now();
-      odometry.pose.pose.position.x = this->chassis->WorldPose().Pos().X();
-      odometry.pose.pose.position.y = this->chassis->WorldPose().Pos().Y();
+      double cur_vel_x_n=alpha*velocity_white_noise(gen1)+(1-alpha)*last_vel_x_n;
+      double cur_vel_y_n=alpha*velocity_white_noise(gen1)+(1-alpha)*last_vel_y_n;
+      double cur_orientation_x_n=alpha*orientation_white_noise(gen2)+(1-alpha)*last_orientation_x_n;
+      double cur_orientation_y_n=alpha*orientation_white_noise(gen2)+(1-alpha)*last_orientation_y_n;
+      double cur_orientation_z_n=alpha*orientation_white_noise(gen2)+(1-alpha)*last_orientation_z_n;
+      double cur_orientation_w_n=alpha*orientation_white_noise(gen2)+(1-alpha)*last_orientation_w_n;
+      double cur_pos_x_n= odometry_timer_interval * cur_vel_x_n+last_pos_x_n;
+      double cur_pos_y_n= odometry_timer_interval * cur_vel_y_n+last_pos_y_n;
+      gzmsg << "cur_vel_x_n: " << cur_vel_x_n <<std::endl;
+      gzmsg << "cur_vel_y_n: " << cur_vel_y_n <<std::endl;
+      odometry.pose.pose.position.x = this->chassis->WorldPose().Pos().X()+cur_pos_x_n;
+      odometry.pose.pose.position.y = this->chassis->WorldPose().Pos().Y()+cur_pos_y_n;
       odometry.pose.pose.position.z = this->chassis->WorldPose().Pos().Z();
-      odometry.pose.pose.orientation.w = this->chassis->WorldPose().Rot().W();
-      odometry.pose.pose.orientation.x = this->chassis->WorldPose().Rot().X();
-      odometry.pose.pose.orientation.y = this->chassis->WorldPose().Rot().Y();
-      odometry.pose.pose.orientation.z = this->chassis->WorldPose().Rot().Z();
+      Eigen::Quaterniond q(
+      this->chassis->WorldPose().Rot().W()+cur_orientation_w_n,
+      this->chassis->WorldPose().Rot().X()+cur_orientation_x_n,
+       this->chassis->WorldPose().Rot().Y()+cur_orientation_y_n,
+       this->chassis->WorldPose().Rot().Z()+cur_orientation_z_n);
+      q.normalize();
+      odometry.pose.pose.orientation.w = q.w();
+      odometry.pose.pose.orientation.x = q.x();
+      odometry.pose.pose.orientation.y = q.y();
+      odometry.pose.pose.orientation.z = q.z();
       odometry.twist.twist.angular.x = this->chassis_angvel[0];
       odometry.twist.twist.angular.y = this->chassis_angvel[1];
       odometry.twist.twist.angular.z = this->chassis_angvel[2];
-      odometry.twist.twist.linear.x = this->chassis->WorldLinearVel().X();
-      odometry.twist.twist.linear.y = this->chassis->WorldLinearVel().Y();
+      odometry.twist.twist.linear.x = this->chassis->WorldLinearVel().X()+cur_vel_x_n;
+      odometry.twist.twist.linear.y = this->chassis->WorldLinearVel().Y()+cur_vel_y_n;
       odometry.twist.twist.linear.z = this->chassis->WorldLinearVel().Z();
       pose_Publisher.publish(odometry);
+      cur_pos_x_n=last_pos_x_n;
+      cur_pos_y_n=last_pos_y_n;
+      cur_vel_x_n=last_vel_x_n;
+      cur_vel_y_n=last_vel_y_n;
+      cur_orientation_x_n=last_orientation_x_n;
+      cur_orientation_y_n=last_orientation_y_n;
+      cur_orientation_z_n=last_orientation_z_n;
+      cur_orientation_w_n=last_orientation_w_n;
     }
     
     void OnWheelState(const ros::TimerEvent&)
@@ -190,7 +236,7 @@ namespace gazebo
         this->right_torque = this -> right_velocityPID.Update(right_error, steptime);
         double p_error,i_error,d_error;
         this->left_velocityPID.GetErrors(p_error,i_error,d_error);
-        gzmsg << "i_error: " <<i_error  << ", p_error: " << p_error<<std::endl;
+        // gzmsg << "i_error: " <<i_error  << ", p_error: " << p_error<<std::endl;
         double left_torque_sign = std::copysign(1.0, this->left_torque); 
         double right_torque_sign = std::copysign(1.0, this->right_torque); 
         double left_angvel_sign = std::copysign(1.0, left_angvel); 
@@ -216,8 +262,8 @@ namespace gazebo
         else{
           this->right_torque=right_torque_sign*min(stall_torque,abs(this->right_torque));
         } 
-        gzmsg << "left_torque: " << this->left_torque    <<", desried_angvel:"<<desired_left_angvel <<", left_angvel: " << left_angvel<<std::endl;
-        gzmsg << "right_torque: " << this->right_torque <<", desried_angvel:"<<desired_right_angvel <<  ", right_angvel: " << right_angvel<<std::endl;
+        // gzmsg << "left_torque: " << this->left_torque    <<", desried_angvel:"<<desired_left_angvel <<", left_angvel: " << left_angvel<<std::endl;
+        // gzmsg << "right_torque: " << this->right_torque <<", desried_angvel:"<<desired_right_angvel <<  ", right_angvel: " << right_angvel<<std::endl;
         ignition::math::Vector3d left_link_torque(0, 0, this->left_torque);
         ignition::math::Vector3d right_link_torque(0, 0, this->right_torque);
         this->left_rear_wheel_link->AddRelativeTorque(left_link_torque);

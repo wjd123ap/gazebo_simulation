@@ -14,8 +14,9 @@ CONTROL_TYPE control_type;
 
 Eigen::Vector2d target_pos;
 ros::Publisher pub_wheelvel;
-double wheel_radius, desired_velocity, pos_threshold,theta_threshold,move_p_gain,move_i_gain,move_d_gain,rotation_p_gain,rotation_d_gain;
-double left_wheel_angvel, right_wheel_angvel,previous_error_theta,integral_error_theta,constant_wheel_vel;
+double wheel_radius,chassis_radius,chassis_mass;
+double desired_velocity, pos_threshold,theta_threshold,move_p_gain,move_i_gain,move_d_gain,rotation_p_gain,rotation_d_gain;
+double left_wheel_angvel, right_wheel_angvel,left_wheel_torque,right_wheel_torque,previous_error_theta,integral_error_theta,constant_wheel_vel;
 double free_energy;
 double normalize_angle(double angle) {
     // Normalize angle to be within -PI and PI
@@ -108,7 +109,10 @@ void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
 
     pub_wheelvel.publish(wheelvel_msg);
     if (control_type == MOVE){
-      // free_energy = wheel;
+      double residual_velocity = chassis_velocity2d.norm() - ((left_wheel_angvel + right_wheel_angvel) * wheel_radius / 2);
+      double residual_angvel = chassis_angular(2)- ((right_wheel_angvel - left_wheel_angvel ) * wheel_radius / (2*chassis_radius));
+      double residual_accel = (left_wheel_torque + right_wheel_torque)/(2*wheel_radius*chassis_mass);
+      free_energy = residual_velocity * residual_velocity + residual_angvel * residual_angvel + residual_accel * residual_accel;
     }
     }
 
@@ -116,14 +120,18 @@ void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
 void wheel_state_callback(const sensor_msgs::JointStateConstPtr &jointstate_msg){
   left_wheel_angvel = (jointstate_msg->velocity)[0];
   right_wheel_angvel = (jointstate_msg->velocity)[1];
+  left_wheel_torque = (jointstate_msg->effort)[0];
+  right_wheel_torque = (jointstate_msg->effort)[1];
 }
 int main(int argc, char** argv) {
   ros::init(argc, argv, "cleanerNode");
   ros::NodeHandle nh("~");
   double init_target_x,init_target_y;
   nh.param("/parameters/desired_velocity", desired_velocity, 0.2);
-
+  
   nh.param("/parameters/wheel_radius", wheel_radius, 0.0375);
+  nh.param("/parameters/chassis_radius", chassis_radius, 0.114);
+  nh.param("/parameters/chassis_mass", chassis_mass, 4.0);
   nh.param("/parameters/init_target_x", init_target_x, 0.0);
   nh.param("/parameters/init_target_y", init_target_y, 0.0);
   nh.param("/parameters/theta_threshold",theta_threshold,0.02);
