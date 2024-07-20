@@ -1,8 +1,8 @@
 parameters:
-  desired_velocity: 0.12
+  desired_velocity: 0.15
   wheel_radius: 0.0375
-  init_target_x: 0.0
-  init_target_y: 0.5
+  init_target_x: 1.5
+  init_target_y: 0
   pos_threshold: 0.02
   theta_threshold: 0.01
   rotation_p_gain: 16.0

@@ -15,9 +15,8 @@ CONTROL_TYPE control_type;
 Eigen::Vector2d target_pos;
 ros::Publisher pub_wheelvel;
 double wheel_radius, desired_velocity, pos_threshold,theta_threshold,move_p_gain,move_i_gain,move_d_gain,rotation_p_gain,rotation_d_gain;
-double left_wheel_angvel, right_wheel_angvel,previous_error_theta,integral_error_theta;
-double constant_wheel_vel;
-
+double left_wheel_angvel, right_wheel_angvel,previous_error_theta,integral_error_theta,constant_wheel_vel;
+double free_energy;
 double normalize_angle(double angle) {
     // Normalize angle to be within -PI and PI
     if (angle > M_PI) {
@@ -78,23 +77,24 @@ void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
         double command_angvel = rotation_p_gain*error_theta+rotation_d_gain*error_theta_dot;
         desired_left_angvel = - command_angvel;
         desired_right_angvel = + command_angvel;
-        previous_error_theta=error_theta;
+        previous_error_theta = error_theta;
       }
       else{
-          control_type=MOVE;
-          previous_error_theta = 0;
-          desired_left_angvel = constant_wheel_vel;
-          desired_right_angvel = constant_wheel_vel;
+        control_type=MOVE;
+        previous_error_theta = 0;
+        desired_left_angvel = constant_wheel_vel;
+        desired_right_angvel = constant_wheel_vel;
       }
     }
-
     else{
-          // desired_left_angvel = 0;
-          // desired_right_angvel = 0;
+        // desired_left_angvel = 0;
+        // desired_right_angvel = 0;
         double desired_theta_dot = (target_offset(0)*chassis_velocity(1) - target_offset(1)*chassis_velocity(0))/(target_offset(0)*target_offset(0)+target_offset(1)*target_offset(1)); 
-        double error_theta_dot = desired_theta_dot-chassis_angular(2);
-        integral_error_theta+=error_theta;
-        double command_angvel = move_p_gain*error_theta+move_i_gain*integral_error_theta+move_d_gain*error_theta_dot;
+        double error_theta_dot = desired_theta_dot - chassis_angular(2);
+        integral_error_theta += error_theta;
+        std::cout<<"integral_error_theta:"<<integral_error_theta<<std::endl;
+        std::cout<<"error_theta:"<<error_theta<<std::endl;
+        double command_angvel = move_p_gain * error_theta + move_i_gain * integral_error_theta + move_d_gain * error_theta_dot;
         desired_left_angvel = constant_wheel_vel - command_angvel;
         desired_right_angvel = constant_wheel_vel + command_angvel;
     }
@@ -103,11 +103,13 @@ void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
     // cout<<"desired_right_angvel:"<<desired_right_angvel<<endl;
 
     cleaner_simulation::WheelVel wheelvel_msg;
-    wheelvel_msg.left=desired_left_angvel;
-    wheelvel_msg.right=desired_right_angvel;
+    wheelvel_msg.left = desired_left_angvel;
+    wheelvel_msg.right = desired_right_angvel;
 
     pub_wheelvel.publish(wheelvel_msg);
-    
+    if (control_type == MOVE){
+      // free_energy = wheel;
+    }
     }
 
 }
