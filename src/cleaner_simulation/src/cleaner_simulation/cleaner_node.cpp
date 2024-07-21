@@ -111,7 +111,7 @@ void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
     if (control_type == MOVE){
       double residual_velocity = chassis_velocity2d.norm() - ((left_wheel_angvel + right_wheel_angvel) * wheel_radius / 2);
       double residual_angvel = chassis_angular(2)- ((right_wheel_angvel - left_wheel_angvel ) * wheel_radius / (2*chassis_radius));
-      double residual_accel = (left_wheel_torque + right_wheel_torque)/(2*wheel_radius*chassis_mass);
+      double residual_accel = (left_wheel_torque + right_wheel_torque)/(wheel_radius*chassis_mass);
       free_energy = residual_velocity * residual_velocity + residual_angvel * residual_angvel + residual_accel * residual_accel;
     }
     }
