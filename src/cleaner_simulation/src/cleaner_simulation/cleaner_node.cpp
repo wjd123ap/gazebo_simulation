@@ -17,7 +17,7 @@ ros::Publisher pub_wheelvel;
 double wheel_radius,chassis_radius,chassis_mass;
 double desired_velocity, pos_threshold,theta_threshold,move_p_gain,move_i_gain,move_d_gain,rotation_p_gain,rotation_d_gain;
 double left_wheel_angvel, right_wheel_angvel,left_wheel_torque,right_wheel_torque,previous_error_theta,integral_error_theta,constant_wheel_vel;
-double free_energy;
+double free_energy,weight1,weight2,weight3;
 double normalize_angle(double angle) {
     // Normalize angle to be within -PI and PI
     if (angle > M_PI) {
@@ -112,7 +112,8 @@ void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
       double residual_velocity = chassis_velocity2d.norm() - ((left_wheel_angvel + right_wheel_angvel) * wheel_radius / 2);
       double residual_angvel = chassis_angular(2)- ((right_wheel_angvel - left_wheel_angvel ) * wheel_radius / (2*chassis_radius));
       double residual_accel = (left_wheel_torque + right_wheel_torque)/(wheel_radius*chassis_mass);
-      free_energy = residual_velocity * residual_velocity + residual_angvel * residual_angvel + residual_accel * residual_accel;
+      free_energy = weight1 * residual_velocity * residual_velocity + weight2 * residual_angvel * residual_angvel + weight3 * residual_accel * residual_accel;
+      ROS_INFO("free_energy_cost:%lf",free_energy);
     }
     }
 
@@ -141,6 +142,9 @@ int main(int argc, char** argv) {
   nh.param("/parameters/move_p_gain", move_p_gain, 1.0);
   nh.param("/parameters/move_i_gain", move_i_gain, 1.0);
   nh.param("/parameters/move_d_gain",move_d_gain,0.02);
+  nh.param("/parameters/weight1", weight1, 1.0);
+  nh.param("/parameters/weight2", weight2, 1.0);
+  nh.param("/parameters/weight3", weight3, 1.0);
   target_on=true;
   control_type=MOVE;
   target_pos(0)=init_target_x;
