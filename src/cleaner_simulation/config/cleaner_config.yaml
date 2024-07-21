@@ -12,3 +12,6 @@ parameters:
   move_p_gain: 20.0
   move_i_gain: 2.0
   move_d_gain: 3.0
+  weight1: 1.0
+  weight2: 1.0
+  weight3: 1.0
