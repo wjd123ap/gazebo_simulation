@@ -160,8 +160,8 @@ namespace gazebo
       double cur_orientation_w_n=alpha*orientation_white_noise(gen2)+(1-alpha)*last_orientation_w_n;
       double cur_pos_x_n= odometry_timer_interval * cur_vel_x_n+last_pos_x_n;
       double cur_pos_y_n= odometry_timer_interval * cur_vel_y_n+last_pos_y_n;
-      gzmsg << "cur_vel_x_n: " << cur_vel_x_n <<std::endl;
-      gzmsg << "cur_vel_y_n: " << cur_vel_y_n <<std::endl;
+      // gzmsg << "cur_vel_x_n: " << cur_vel_x_n <<std::endl;
+      // gzmsg << "cur_vel_y_n: " << cur_vel_y_n <<std::endl;
       odometry.pose.pose.position.x = this->chassis->WorldPose().Pos().X()+cur_pos_x_n;
       odometry.pose.pose.position.y = this->chassis->WorldPose().Pos().Y()+cur_pos_y_n;
       odometry.pose.pose.position.z = this->chassis->WorldPose().Pos().Z();
@@ -272,7 +272,6 @@ namespace gazebo
         // this->right_wheel->SetForce(0, this->right_torque);
         wheelMsgs.effort.push_back(this->left_torque);
         wheelMsgs.effort.push_back(this->right_torque);
-
         wheelstate_Publisher.publish(wheelMsgs);
         // gzmsg << "right_measure_torque: " << right_measure_torque<< ",desired_right_torque: " << this->right_torque<<std::endl;
         // 로그에 상태 출력
