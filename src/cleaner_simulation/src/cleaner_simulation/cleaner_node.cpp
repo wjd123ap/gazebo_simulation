@@ -7,6 +7,9 @@
 #include "cleaner_simulation/cleaner.hpp"
 #include <math.h>
 #include "cleaner_simulation/WheelVel.h"
+#include <nav_msgs/Odometry.h>
+#include <sensor_msgs/JointState.h>
+#include <std_msgs/Float64.h>
 using namespace std;
 bool target_on = false;
 enum CONTROL_TYPE{MOVE,ROTATION};
