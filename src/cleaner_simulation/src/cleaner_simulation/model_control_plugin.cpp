@@ -6,10 +6,11 @@
 #include <sdf/sdf.hh>
 #include <ros/ros.h>
 #include <std_msgs/String.h>
-#include <nav_msgs/Odometry.h>
+
 #include <sensor_msgs/Imu.h>
 #include "cleaner_simulation/TorqueTest.h"
 #include "cleaner_simulation/WheelVel.h"
+#include "cleaner_simulation/Odometry.h"
 #include <cmath>
 #include <algorithm>
 #include <sensor_msgs/JointState.h>
@@ -116,13 +117,11 @@ namespace gazebo
         this->torque_Subscriber = this->rosNode->subscribe("/robot_control", 10, &ModelControlPlugin::OnTorqueMsg, this);
         this->wheelvel_Subscriber = this->rosNode->subscribe("/wheelvel_control", 10, &ModelControlPlugin::OnWheelVelMsg, this);
         this->imu_Subscriber = this->rosNode->subscribe("/robot_cleaner/imu", 10, &ModelControlPlugin::OnImuMsg, this);       
-        this->pose_Publisher = this->rosNode->advertise<nav_msgs::Odometry>("chassis_pose", 1000);
+        this->pose_Publisher = this->rosNode->advertise<cleaner_simulation::Odometry>("chassis_pose", 1000);
         
         this->wheelstate_Publisher = this->rosNode->advertise<sensor_msgs::JointState>("wheel_state", 1000);
-        odometry_timer = rosNode->createTimer(ros::Duration(odometry_timer_interval), &ModelControlPlugin::Odometry_update, this);
+        
         motor_timer = rosNode->createTimer(ros::Duration(this->stepsize), &ModelControlPlugin::OnWheelState, this);
-        this->gazebonode = transport::NodePtr(new transport::Node());
-        this->gazebonode->Init();
 
 
         this->updateConnection = event::Events::ConnectWorldUpdateBegin(
@@ -147,16 +146,14 @@ namespace gazebo
 
     void OnImuMsg(const sensor_msgs::ImuConstPtr &msg)
     {
+      
       this->chassis_angvel[0] = msg->angular_velocity.x;
       this->chassis_angvel[1] = msg->angular_velocity.y;
       this->chassis_angvel[2] = msg->angular_velocity.z;
-    }
-
-    void Odometry_update(const ros::TimerEvent&)
-    {
+      cleaner_simulation::Odometry odometry_msg;
       nav_msgs::Odometry odometry;
       odometry.header.frame_id = "world";
-      odometry.header.stamp = ros::Time::now();
+      odometry.header.stamp = msg->header.stamp;
       double cur_vel_x_n=alpha*velocity_white_noise(gen1)+(1-alpha)*last_vel_x_n;
       double cur_vel_y_n=alpha*velocity_white_noise(gen1)+(1-alpha)*last_vel_y_n;
       double cur_orientation_x_n=alpha*orientation_white_noise(gen2)+(1-alpha)*last_orientation_x_n;
@@ -186,7 +183,11 @@ namespace gazebo
       odometry.twist.twist.linear.x = this->chassis->WorldLinearVel().X()+cur_vel_x_n;
       odometry.twist.twist.linear.y = this->chassis->WorldLinearVel().Y()+cur_vel_y_n;
       odometry.twist.twist.linear.z = this->chassis->WorldLinearVel().Z();
-      pose_Publisher.publish(odometry);
+      odometry_msg.odometry=odometry;
+      odometry_msg.accel.x= msg -> linear_acceleration.x;
+      odometry_msg.accel.y= msg -> linear_acceleration.y;
+      odometry_msg.accel.z= msg -> linear_acceleration.z;
+      pose_Publisher.publish(odometry_msg);
       cur_pos_x_n=last_pos_x_n;
       cur_pos_y_n=last_pos_y_n;
       cur_vel_x_n=last_vel_x_n;
@@ -196,6 +197,8 @@ namespace gazebo
       cur_orientation_z_n=last_orientation_z_n;
       cur_orientation_w_n=last_orientation_w_n;
     }
+
+
     
     void OnWheelState(const ros::TimerEvent&)
     {
@@ -290,8 +293,7 @@ namespace gazebo
 
   private:
     std::unique_ptr<ros::NodeHandle> rosNode;
-    transport::NodePtr gazebonode;
-    transport::SubscriberPtr gazebosub;
+
     event::ConnectionPtr updateConnection;
     physics::ModelPtr model;
     physics::JointPtr front_left_wheel;
@@ -328,6 +330,7 @@ namespace gazebo
     double wheel_i;
     double wheel_d;
     double stepsize;
+
   };
 
   GZ_REGISTER_MODEL_PLUGIN(ModelControlPlugin)

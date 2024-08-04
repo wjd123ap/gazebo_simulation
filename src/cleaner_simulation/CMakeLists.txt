@@ -58,6 +58,7 @@ add_message_files(
   TargetPos.msg
   Contact.msg
   Contacts.msg
+  Odometry.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -78,6 +79,7 @@ generate_messages(
   DEPENDENCIES
   std_msgs
   geometry_msgs
+  nav_msgs
     # Or other packages containing msgs
 )
 
@@ -139,7 +141,7 @@ add_library(cleaner
 )
 target_link_libraries(cleaner ${catkin_LIBRARIES})
 add_executable(cleaner_node src/cleaner_simulation/cleaner_node.cpp)
-target_link_libraries(cleaner_node cleaner)
+target_link_libraries(cleaner_node cleaner ${GAZEBO_LIBRARIES})
 ## Declare a C++ library
 add_library(world_control_plugin
   src/${PROJECT_NAME}/world_control_plugin.cpp

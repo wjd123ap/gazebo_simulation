@@ -1,18 +1,22 @@
 #include <ros/ros.h>
 #include <vector>
 #include <iostream>
-#include <queue>
+
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include "cleaner_simulation/cleaner.hpp"
 #include <math.h>
 #include "cleaner_simulation/WheelVel.h"
+#include "cleaner_simulation/Odometry.h"
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/JointState.h>
+
 #include <std_msgs/Float64.h>
+
 using namespace std;
 bool target_on = false;
 enum CONTROL_TYPE{MOVE,ROTATION};
+
 CONTROL_TYPE control_type; 
 
 Eigen::Vector2d target_pos;
@@ -22,6 +26,7 @@ double wheel_radius,chassis_radius,chassis_mass;
 double desired_velocity, pos_threshold,theta_threshold,move_p_gain,move_i_gain,move_d_gain,rotation_p_gain,rotation_d_gain;
 double left_wheel_angvel, right_wheel_angvel,left_wheel_torque,right_wheel_torque,previous_error_theta,integral_error_theta,constant_wheel_vel;
 double free_energy,weight1,weight2,weight3;
+
 double normalize_angle(double angle) {
     // Normalize angle to be within -PI and PI
     if (angle > M_PI) {
@@ -32,23 +37,29 @@ double normalize_angle(double angle) {
     }
     return angle;
 }
+
 double calculate_clockwise_difference(double theta, double desired_theta) {
     double difference = desired_theta - theta;
     difference = fmod(difference + 2 * M_PI, 2 * M_PI);
     return normalize_angle(difference);
 }
 
-void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
+void odometry_callback(const cleaner_simulation::OdometryConstPtr &odometry_msg){
     if (target_on){
-    Eigen::Vector3d chassis_position(odometry_msg->pose.pose.position.x,odometry_msg->pose.pose.position.y,odometry_msg->pose.pose.position.z);
-    Eigen::Vector3d chassis_velocity(odometry_msg->twist.twist.linear.x,odometry_msg->twist.twist.linear.y,odometry_msg->twist.twist.linear.z);
-    Eigen::Vector3d chassis_angular(odometry_msg->twist.twist.angular.x,odometry_msg->twist.twist.angular.y,odometry_msg->twist.twist.angular.z);
-    Eigen::Quaterniond orientation(odometry_msg->pose.pose.orientation.w,odometry_msg->pose.pose.orientation.x,
-    odometry_msg->pose.pose.orientation.y,odometry_msg->pose.pose.orientation.z);
+      
+    Eigen::Vector3d chassis_position(odometry_msg->odometry.pose.pose.position.x,odometry_msg->odometry.pose.pose.position.y,
+    odometry_msg->odometry.pose.pose.position.z);
+    Eigen::Vector3d chassis_velocity(odometry_msg->odometry.twist.twist.linear.x,odometry_msg->odometry.twist.twist.linear.y,
+    odometry_msg->odometry.twist.twist.linear.z);
+    Eigen::Vector3d chassis_angular(odometry_msg->odometry.twist.twist.angular.x,odometry_msg->odometry.twist.twist.angular.y,
+    odometry_msg->odometry.twist.twist.angular.z);
+    Eigen::Quaterniond orientation(odometry_msg->odometry.pose.pose.orientation.w,odometry_msg->odometry.pose.pose.orientation.x,
+    odometry_msg->odometry.pose.pose.orientation.y,odometry_msg->odometry.pose.pose.orientation.z);
     Eigen::Matrix3d rotation_matrix= orientation.toRotationMatrix();
     double theta = atan2(rotation_matrix(1,0),rotation_matrix(0,0));
-    Eigen::Vector2d chassis_position2d(odometry_msg->pose.pose.position.x,odometry_msg->pose.pose.position.y);
-    Eigen::Vector2d chassis_velocity2d(odometry_msg->twist.twist.linear.x,odometry_msg->twist.twist.linear.y);
+    Eigen::Vector2d chassis_position2d(odometry_msg->odometry.pose.pose.position.x,odometry_msg->odometry.pose.pose.position.y);
+    Eigen::Vector2d chassis_velocity2d(odometry_msg->odometry.twist.twist.linear.x,odometry_msg->odometry.twist.twist.linear.y);
+    double chassis_accel = odometry_msg -> accel.x;
     if ((target_pos-chassis_position2d).norm()<pos_threshold)
     {
       cleaner_simulation::WheelVel wheelvel_msg;
@@ -117,8 +128,9 @@ void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
     if (control_type == MOVE){
       double residual_velocity = chassis_velocity2d.norm() - ((left_wheel_angvel + right_wheel_angvel) * wheel_radius / 2);
       double residual_angvel = chassis_angular(2)- ((right_wheel_angvel - left_wheel_angvel ) * wheel_radius / (2*chassis_radius));
-      double residual_accel = (left_wheel_torque + right_wheel_torque)/(wheel_radius*chassis_mass);
+      double residual_accel = chassis_accel-((left_wheel_torque + right_wheel_torque)/(wheel_radius*chassis_mass));
       free_energy = weight1 * residual_velocity * residual_velocity + weight2 * residual_angvel * residual_angvel + weight3 * residual_accel * residual_accel;
+      cout<<"residual_velocity:"<<residual_velocity<<", residual_angvel:"<<residual_angvel<<", residual_accel:"<<residual_accel<<endl;
       std_msgs::Float64 FE_msgs;
       FE_msgs.data = free_energy;
       pub_FE.publish(FE_msgs);
@@ -164,7 +176,7 @@ int main(int argc, char** argv) {
   constant_wheel_vel=desired_velocity/wheel_radius;
 
   // Spin
-  ros::AsyncSpinner spinner(2);  // Use n threads
+  ros::AsyncSpinner spinner(3);  // Use n threads
   spinner.start();
   ros::waitForShutdown();
   return 0;
