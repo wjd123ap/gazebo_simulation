@@ -16,6 +16,7 @@
 #include <random>
 #include <Eigen/Core>
 #include <Eigen/Dense>
+// #include
 using namespace std;
 const double stall_torque=(77.5/32.5);
 const double alpha=0.5;
@@ -120,12 +121,16 @@ namespace gazebo
         this->wheelstate_Publisher = this->rosNode->advertise<sensor_msgs::JointState>("wheel_state", 1000);
         odometry_timer = rosNode->createTimer(ros::Duration(odometry_timer_interval), &ModelControlPlugin::Odometry_update, this);
         motor_timer = rosNode->createTimer(ros::Duration(this->stepsize), &ModelControlPlugin::OnWheelState, this);
-        // this->updateConnection = event::Events::ConnectWorldUpdateBegin(
-        //   std::bind(&ModelControlPlugin::OnWheelState, this));
+        this->gazebonode = transport::NodePtr(new transport::Node());
+        this->gazebonode->Init();
+
+
+        this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+          std::bind(&ModelControlPlugin::OnUpdateState, this));
         ROS_INFO("RobotControlPlugin loaded");
 
-
     }
+
 
     void OnTorqueMsg(const cleaner_simulation::TorqueTestConstPtr &msg)
     {
@@ -264,36 +269,29 @@ namespace gazebo
         } 
         // gzmsg << "left_torque: " << this->left_torque    <<", desried_angvel:"<<desired_left_angvel <<", left_angvel: " << left_angvel<<std::endl;
         // gzmsg << "right_torque: " << this->right_torque <<", desried_angvel:"<<desired_right_angvel <<  ", right_angvel: " << right_angvel<<std::endl;
-        ignition::math::Vector3d left_link_torque(0, 0, this->left_torque);
-        ignition::math::Vector3d right_link_torque(0, 0, this->right_torque);
-        this->left_rear_wheel_link->AddRelativeTorque(left_link_torque);
-        this->right_rear_wheel_link->AddRelativeTorque(right_link_torque);
+        // ignition::math::Vector3d left_link_torque(0, 0, this->left_torque);
+        // ignition::math::Vector3d right_link_torque(0, 0, this->right_torque);
+        // this->left_rear_wheel_link->AddRelativeTorque(left_link_torque);
+        // this->right_rear_wheel_link->AddRelativeTorque(right_link_torque);
         // this->left_wheel->SetForce(0, this->left_torque);
         // this->right_wheel->SetForce(0, this->right_torque);
         wheelMsgs.effort.push_back(this->left_torque);
         wheelMsgs.effort.push_back(this->right_torque);
         wheelstate_Publisher.publish(wheelMsgs);
-        // gzmsg << "right_measure_torque: " << right_measure_torque<< ",desired_right_torque: " << this->right_torque<<std::endl;
-        // 로그에 상태 출력
-        // gzmsg <<  "right_angvel: " << right_angvel  << ", left_angvel: " << left_angvel<<std::endl;
-        // ignition::math::Vector3d left_wheel_jointforce = this->left_wheel->LinkForce(1);
-        // ignition::math::Vector3d right_wheel_jointforce = this->right_wheel->LinkForce(1);     
-        // ignition::math::Vector3d front_left_wheel_jointforce = this->front_left_wheel->LinkForce(1);
-        // ignition::math::Vector3d front_right_wheel_jointforce = this->front_right_wheel->LinkForce(1);     
-        // auto force1 = this->left_rear_wheel_link->WorldForce();
-        // auto force2 = this->right_rear_wheel_link->WorldForce();
-        // auto force3 = this->chassis->WorldForce();
-        // gazebo::physics::Collision_V collisions = this->right_rear_wheel_link->GetCollisions();
-        // std::cout << "collisions.size(): " << collisions[0]->GetModel()->GetName() << std::endl;
-        // std::cout << "collisions.size(): " << collisions.size() << std::endl;
-        // std::cout << "force2: " << force2 << std::endl;        
-        // gzmsg << "left_wheel_jointforce: " << left_wheel_jointforce << std::endl;
-        // gzmsg << "right_wheel_jointforce: " << right_wheel_jointforce << std::endl;
-        // gzmsg << "front_left_wheel_joint: " << front_left_wheel_jointforce << std::endl;
-        // gzmsg << "front_right_wheel_joint: " << front_right_wheel_jointforce << std::endl;
+
     }
+    void OnUpdateState(){
+      ignition::math::Vector3d left_link_torque(0, 0, this->left_torque);
+      ignition::math::Vector3d right_link_torque(0, 0, this->right_torque);
+      this->left_rear_wheel_link->AddRelativeTorque(left_link_torque);
+      this->right_rear_wheel_link->AddRelativeTorque(right_link_torque);
+    }
+
+
   private:
     std::unique_ptr<ros::NodeHandle> rosNode;
+    transport::NodePtr gazebonode;
+    transport::SubscriberPtr gazebosub;
     event::ConnectionPtr updateConnection;
     physics::ModelPtr model;
     physics::JointPtr front_left_wheel;
