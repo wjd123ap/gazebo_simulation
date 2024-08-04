@@ -2,6 +2,8 @@
   <world name='default'>
     <plugin name='cleaner_world' filename='libworld_control_plugin.so'>
       <physics type='ode'>
+        <thread_position_correction>1</thread_position_correction>
+        <island_threads>3</island_threads>
         <real_time_update_rate>0</real_time_update_rate>
         <max_step_size>0.0005</max_step_size>
         <ode>
@@ -165,7 +167,7 @@
     </gui>
 
     <model name='chair'>
-      <pose>0.9 0 -0.014 0 0 0</pose>
+      <pose>0.9 0 -0.005 0 0 0</pose>
       <link name='body'>   
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
@@ -186,7 +188,7 @@
         <collision name='collision'>
           <geometry>
             <mesh>
-              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/new_chair1.stl</uri>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/new_chair1.stl</uri>
               <scale>0.001 0.001 0.001</scale>
             </mesh>
           </geometry>
@@ -240,7 +242,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/new_chair1.stl</uri>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/new_chair1.stl</uri>
               <scale>0.001 0.001 0.001</scale>
             </mesh>
           </geometry>
@@ -269,7 +271,7 @@
 
     <model name='chair_frame1'>
         <!-- <pose>1.20087 0 0.013622 1.57079632679 -0 0</pose> -->
-      <pose>1.0 -2 -0.011 0 -0 0</pose>
+      <pose>1.0 -2 -0.005 0 -0 0</pose>
       <link name='body'>
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
@@ -291,8 +293,8 @@
         <collision name='collision'>
           <geometry>
             <mesh>
-              <!-- <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/chair_frame.stl</uri> -->
-              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/new_chair2.stl</uri>
+              <!-- <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/chair_frame.stl</uri> -->
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/new_chair2.stl</uri>
               <scale>0.001 0.001 0.001</scale>
             </mesh>
           </geometry>
@@ -313,7 +315,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/new_chair2.stl</uri>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/new_chair2.stl</uri>
               <scale>0.001 0.001 0.001</scale>
             </mesh>
           </geometry>
@@ -363,7 +365,7 @@
         <collision name='collision'>
           <geometry>
             <mesh>
-              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/scales.stl</uri>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/scales.stl</uri>
               <scale>0.001 0.001 0.001</scale>
             </mesh>
           </geometry>
@@ -384,7 +386,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/scales.stl</uri>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/scales.stl</uri>
               <scale>0.001 0.001 0.001</scale>
             </mesh>
           </geometry>
@@ -434,7 +436,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/new_door.stl</uri>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/new_door.stl</uri>
               <scale>0.001 0.001 0.001</scale>
             </mesh>
           </geometry>
@@ -461,7 +463,7 @@
           <pose>0 0 0 0 -0 0</pose>
           <geometry>
             <mesh>
-              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/new_door.stl</uri>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/new_door.stl</uri>
               <scale>0.001 0.001 0.001</scale>
             </mesh>
           </geometry>
@@ -518,8 +520,8 @@
 
     <model name='robot_cleaner'>
       <plugin name='cleaner' filename='libmodel_control_plugin.so'>
-        <wheel_p_gain>0.3</wheel_p_gain>
-        <wheel_i_gain>0.03</wheel_i_gain>
+        <wheel_p_gain>0.1</wheel_p_gain>
+        <wheel_i_gain>0.01</wheel_i_gain>
         <wheel_d_gain>0.0</wheel_d_gain>
         <motor_updateRateHZ>1000.00</motor_updateRateHZ>
       </plugin>
@@ -542,7 +544,7 @@
         <collision name='collision'>
           <geometry>
             <mesh>
-              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/chassis.stl</uri>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/chassis.stl</uri>
               <scale>0.001 0.001 0.001</scale>
             </mesh>
           </geometry>
@@ -597,7 +599,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/chassis.stl</uri>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/chassis.stl</uri>
               <scale>0.001 0.001 0.001</scale>
             </mesh>
           </geometry>
@@ -736,7 +738,7 @@
         <collision name='collision'>
           <geometry>
             <mesh>
-              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/caster.stl</uri>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/caster.stl</uri>
               <scale>1 1 1</scale>
             </mesh>
           </geometry>
@@ -786,7 +788,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/caster.stl</uri>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/caster.stl</uri>
               <scale>1 1 1</scale>
             </mesh>
           </geometry>
@@ -1154,7 +1156,7 @@
         <collision name='collision'>
           <geometry>
             <mesh>
-              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/wheel_gear.stl</uri>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/wheel_gear.stl</uri>
               <scale>0.002 0.002 0.001</scale>
             </mesh>
             <!-- <cylinder>
@@ -1212,7 +1214,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/wheel_gear.stl</uri>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/wheel_gear.stl</uri>
               <scale>0.002 0.002 0.001</scale>
             </mesh>
             <!-- <cylinder>
@@ -1292,7 +1294,7 @@
         <collision name='collision'>
           <geometry>
             <mesh>
-              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/wheel_gear.stl</uri>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/wheel_gear.stl</uri>
               <scale>0.002 0.002 0.001</scale>
             </mesh>
             <!-- <cylinder>
@@ -1350,7 +1352,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>file:///home/jeong/robot_cleaner/src/cleaner_simulation/cadfile/wheel_gear.stl</uri>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/wheel_gear.stl</uri>
               <scale>0.002 0.002 0.001</scale>
             </mesh>
             <!-- <cylinder>
