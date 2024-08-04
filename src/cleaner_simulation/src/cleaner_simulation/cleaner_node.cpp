@@ -17,6 +17,7 @@ CONTROL_TYPE control_type;
 
 Eigen::Vector2d target_pos;
 ros::Publisher pub_wheelvel;
+ros::Publisher pub_FE;
 double wheel_radius,chassis_radius,chassis_mass;
 double desired_velocity, pos_threshold,theta_threshold,move_p_gain,move_i_gain,move_d_gain,rotation_p_gain,rotation_d_gain;
 double left_wheel_angvel, right_wheel_angvel,left_wheel_torque,right_wheel_torque,previous_error_theta,integral_error_theta,constant_wheel_vel;
@@ -85,7 +86,7 @@ void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
       }
       else{
         control_type=MOVE;
-        previous_error_theta = 0;
+        // previous_error_theta = 0;
         desired_left_angvel = constant_wheel_vel;
         desired_right_angvel = constant_wheel_vel;
       }
@@ -94,10 +95,12 @@ void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
         // desired_left_angvel = 0;
         // desired_right_angvel = 0;
         double desired_theta_dot = (target_offset(0)*chassis_velocity(1) - target_offset(1)*chassis_velocity(0))/(target_offset(0)*target_offset(0)+target_offset(1)*target_offset(1)); 
-        double error_theta_dot = desired_theta_dot - chassis_angular(2);
+        // double error_theta_dot = desired_theta_dot - chassis_angular(2);
+        double error_theta_dot = (error_theta-previous_error_theta);
         integral_error_theta += error_theta;
-        std::cout<<"integral_error_theta:"<<integral_error_theta<<std::endl;
-        std::cout<<"error_theta:"<<error_theta<<std::endl;
+        previous_error_theta = error_theta;
+        // std::cout<<"integral_error_theta:"<<integral_error_theta<<std::endl;
+        // std::cout<<"error_theta:"<<error_theta<<std::endl;
         double command_angvel = move_p_gain * error_theta + move_i_gain * integral_error_theta + move_d_gain * error_theta_dot;
         desired_left_angvel = constant_wheel_vel - command_angvel;
         desired_right_angvel = constant_wheel_vel + command_angvel;
@@ -116,7 +119,9 @@ void odometry_callback(const nav_msgs::OdometryConstPtr &odometry_msg){
       double residual_angvel = chassis_angular(2)- ((right_wheel_angvel - left_wheel_angvel ) * wheel_radius / (2*chassis_radius));
       double residual_accel = (left_wheel_torque + right_wheel_torque)/(wheel_radius*chassis_mass);
       free_energy = weight1 * residual_velocity * residual_velocity + weight2 * residual_angvel * residual_angvel + weight3 * residual_accel * residual_accel;
-      ROS_INFO("free_energy_cost:%lf",free_energy);
+      std_msgs::Float64 FE_msgs;
+      FE_msgs.data = free_energy;
+      pub_FE.publish(FE_msgs);
     }
     }
 
@@ -155,6 +160,7 @@ int main(int argc, char** argv) {
   ros::Subscriber sub_odometry = nh.subscribe("/robot_cleaner/chassis_pose",2000,odometry_callback, ros::TransportHints().tcpNoDelay());
   ros::Subscriber sub_wheelstate = nh.subscribe("/robot_cleaner/wheel_state",2000,wheel_state_callback, ros::TransportHints().tcpNoDelay());
   pub_wheelvel = nh.advertise< cleaner_simulation::WheelVel>("/wheelvel_control", 1000);
+  pub_FE = nh.advertise<std_msgs::Float64>("/free_energy",1000);
   constant_wheel_vel=desired_velocity/wheel_radius;
 
   // Spin
