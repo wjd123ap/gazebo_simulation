@@ -167,7 +167,7 @@
     </gui>
 
     <model name='chair'>
-      <pose>1.4 0 -0.005 0 0 0</pose>
+      <pose>1.0 0.0 -0.005 0 0 0</pose>
       <link name='body'>   
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
