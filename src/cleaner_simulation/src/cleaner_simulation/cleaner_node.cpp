@@ -15,14 +15,17 @@
 
 using namespace std;
 bool target_on = false;
+bool target_vec_on = false;
 enum CONTROL_TYPE{ROTATION,MOVE,MOVE_BACK};
 
 CONTROL_TYPE control_type; 
 
 Eigen::Vector2d target_pos;
+Eigen::Vector2d target_vec;
 ros::Publisher pub_wheelvel;
 ros::Publisher pub_FE;
 double wheel_radius,chassis_radius,chassis_mass;
+
 double desired_velocity, pos_threshold,theta_threshold,move_p_gain,move_i_gain,move_d_gain,rotation_p_gain,rotation_d_gain;
 double left_wheel_angvel, right_wheel_angvel,left_wheel_torque,right_wheel_torque,previous_error_theta,integral_error_theta,constant_wheel_vel;
 double free_energy, weight1, weight2, weight3, FE_threshold, MOVE_BACK_threshold;
@@ -53,18 +56,20 @@ void stop(){
   wheelvel_msg.left=0;
   wheelvel_msg.right=0;
   target_on=false;
+  target_vec_on = false;
   integral_error_theta=0;
   pub_wheelvel.publish(wheelvel_msg);
 }
 
-void change_target_pos(Eigen::Vector2d& current_pos, Eigen::Vector2d& direction) {
-  Eigen::Vector2d new_target_pos = current_pos - 0.5*direction;
+void change_target_pos(Eigen::Vector2d& current_pos) {
+  Eigen::Vector2d new_target_pos = current_pos - 2.0*target_vec;
   target_pos(0) = new_target_pos(0);
   target_pos(1) = new_target_pos(1);
 }
 
 void odometry_callback(const cleaner_simulation::OdometryConstPtr &odometry_msg){
     if (target_on){
+      
       double average_FE=0;
       Eigen::Vector3d chassis_position(odometry_msg->odometry.pose.pose.position.x,odometry_msg->odometry.pose.pose.position.y,
       odometry_msg->odometry.pose.pose.position.z);
@@ -100,6 +105,10 @@ void odometry_callback(const cleaner_simulation::OdometryConstPtr &odometry_msg)
         control_type=ROTATION;
         previous_error_theta=error_theta;
       }
+      if ((!target_vec_on)&(control_type==MOVE)){
+        target_vec = target_offset_normalized;
+        target_vec_on=true;
+      }
       if (control_type != ROTATION){
         double residual_velocity = chassis_velocity2d.norm() - ((left_wheel_angvel + right_wheel_angvel) * wheel_radius / 2);
         double residual_angvel = chassis_angular(2)- ((right_wheel_angvel - left_wheel_angvel ) * wheel_radius / (2*chassis_radius));
@@ -113,8 +122,11 @@ void odometry_callback(const cleaner_simulation::OdometryConstPtr &odometry_msg)
           free_energy_buf.pop();
           average_FE = tmp_FE_sum / buffer_size;
         }
+        cout<<"control_type:"<<control_type<<endl;
+        cout<<"free_energy:"<<free_energy<<endl;
+        cout<<"average_FE:"<<average_FE<<endl;
         if ((average_FE>FE_threshold)&(control_type != MOVE_BACK)){
-          change_target_pos(chassis_position2d,target_offset_normalized);
+          change_target_pos(chassis_position2d);
           integral_error_theta=0;
           control_type=MOVE_BACK;
         }
@@ -154,8 +166,7 @@ void odometry_callback(const cleaner_simulation::OdometryConstPtr &odometry_msg)
               error_theta_dot = (error_theta-previous_error_theta);
               integral_error_theta += error_theta;
               previous_error_theta = error_theta;
-              // std::cout<<"integral_error_theta:"<<integral_error_theta<<std::endl;
-              // std::cout<<"error_theta:"<<error_theta<<std::endl;
+
               command_angvel = move_p_gain * error_theta + move_i_gain * integral_error_theta + move_d_gain * error_theta_dot;
               desired_left_angvel = constant_wheel_vel - command_angvel;
               desired_right_angvel = constant_wheel_vel + command_angvel;

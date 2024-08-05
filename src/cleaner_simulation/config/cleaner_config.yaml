@@ -4,7 +4,7 @@ parameters:
   chassis_mass: 4
   chassis_radius: 0.114
   init_target_x: 1.0
-  init_target_y: 0.0
+  init_target_y: 0.1
   pos_threshold: 0.02
   theta_threshold: 0.01
   rotation_p_gain: 16.0
@@ -16,5 +16,5 @@ parameters:
   weight2: 1.0
   weight3: 1.0
   buffer_size: 10
-  FE_threshold: 2.0
-  MOVE_BACK_threshold: 0.5
+  FE_threshold: 0.8
+  MOVE_BACK_threshold: 0.4

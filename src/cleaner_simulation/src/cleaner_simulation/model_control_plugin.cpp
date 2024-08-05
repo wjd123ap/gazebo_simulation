@@ -26,8 +26,8 @@ std::mt19937 gen1(123456); // 난수 엔진 초기화
 std::mt19937 gen2(12145); // 난수 엔진 초기화
 
 
-std::normal_distribution<double> velocity_white_noise(0.0, 0.008);
-std::normal_distribution<double> orientation_white_noise(0.0, 0.002);
+std::normal_distribution<double> velocity_white_noise(0.0, 0.01);
+std::normal_distribution<double> orientation_white_noise(0.0, 0.003);
 
 
 double last_pos_x_n=0.0,last_pos_y_n=0.0;
