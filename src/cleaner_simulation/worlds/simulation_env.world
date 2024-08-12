@@ -167,7 +167,7 @@
     </gui>
 
     <model name='chair'>
-      <pose>1.0 0.5 -0.005 0 0 0</pose>
+      <pose>1.0 2.0 -0.005 0 0 0</pose>
       <link name='body'>   
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
@@ -686,7 +686,7 @@
                 <noise type='gaussian'>
                   <mean>0</mean>
                   <stddev>0.017</stddev>
-                  <bias_mean>0.1</bias_mean>
+                  <bias_mean>0.0</bias_mean>
                   <bias_stddev>0.001</bias_stddev>
                 </noise>
               </x>
@@ -694,7 +694,7 @@
                 <noise type='gaussian'>
                   <mean>0</mean>
                   <stddev>0.017</stddev>
-                  <bias_mean>0.1</bias_mean>
+                  <bias_mean>0.0</bias_mean>
                   <bias_stddev>0.001</bias_stddev>
                 </noise>
               </y>
@@ -702,7 +702,7 @@
                 <noise type='gaussian'>
                   <mean>0</mean>
                   <stddev>0.017</stddev>
-                  <bias_mean>0.1</bias_mean>
+                  <bias_mean>0.0</bias_mean>
                   <bias_stddev>0.001</bias_stddev>
                 </noise>
               </z>
@@ -812,7 +812,6 @@
             <spring_stiffness>0</spring_stiffness>
           </dynamics>
         </axis>
-        
       </joint>
 
       <link name='wheel_caster'>

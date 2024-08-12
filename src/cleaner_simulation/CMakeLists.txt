@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 3.0.2)
 project(cleaner_simulation)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
-
+add_compile_options(-std=c++11)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -17,6 +18,11 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
 )
 find_package(Eigen3 QUIET)
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+    message("OpenMP found")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 find_package(gazebo REQUIRED)
@@ -136,12 +142,16 @@ include_directories(
 include  
 ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS})
 
-add_library(cleaner
-  src/cleaner_simulation/cleaner.cpp
+add_library(utils
+  src/cleaner_simulation/utils.cpp
 )
-target_link_libraries(cleaner ${catkin_LIBRARIES})
+
+add_library(Fep
+  src/cleaner_simulation/Fep.cpp
+)
+target_link_libraries(Fep utils)
 add_executable(cleaner_node src/cleaner_simulation/cleaner_node.cpp)
-target_link_libraries(cleaner_node cleaner ${GAZEBO_LIBRARIES})
+target_link_libraries(cleaner_node Fep ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 ## Declare a C++ library
 add_library(world_control_plugin
   src/${PROJECT_NAME}/world_control_plugin.cpp
@@ -149,9 +159,11 @@ add_library(world_control_plugin
 add_library(model_control_plugin
   src/${PROJECT_NAME}/model_control_plugin.cpp
 )
+
 add_library(contact SHARED
   src/${PROJECT_NAME}/ContactPlugin.cpp
 )
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -175,6 +187,9 @@ add_library(contact SHARED
 ## Specify libraries to link a library or executable target against
 # add_executable(world_plugin_node src/${PROJECT_NAME}/world_plugin.cpp)
 # add_executable(cleaner_plugin_node src/${PROJECT_NAME}/cleaner_plugin.cpp)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(utils PUBLIC OpenMP::OpenMP_CXX)
+endif()
 target_link_libraries(world_control_plugin
   ${catkin_LIBRARIES}
   ${GAZEBO_LIBRARIES}

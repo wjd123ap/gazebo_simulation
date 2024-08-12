@@ -46,18 +46,7 @@ namespace gazebo
     void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     {
         ROS_INFO("ModelPlugin for %s loaded successfully!", _model->GetName().c_str());
-      //   // 모델의 링크 출력
-      //   auto links = _model->GetLinks();
-      //   std::cout << "Model has " << links.size() << " links:" << std::endl;
-      //   for (auto &link : links) {
-      //       std::cout << " - Link Name: " << link->GetName() << std::endl;
-      //   }
-      // // 모델의 조인트 출력
-      //   auto joints = _model->GetJoints();
-      //   std::cout << "Model has " << joints.size() << " joints:" << std::endl;
-      //   for (auto &joint : joints) {
-      //   std::cout << " - Joint Name: " << joint->GetName() << ", Type: " << joint->GetType() << std::endl;
-      //   }
+
         if (!ros::isInitialized())
         {
         int argc = 0;
@@ -184,9 +173,9 @@ namespace gazebo
       odometry.twist.twist.linear.y = this->chassis->WorldLinearVel().Y()+cur_vel_y_n;
       odometry.twist.twist.linear.z = this->chassis->WorldLinearVel().Z();
       odometry_msg.odometry=odometry;
-      odometry_msg.accel.x= msg -> linear_acceleration.x;
-      odometry_msg.accel.y= msg -> linear_acceleration.y;
-      odometry_msg.accel.z= msg -> linear_acceleration.z;
+      odometry_msg.accel.x= this->chassis-> RelativeLinearAccel().X();
+      odometry_msg.accel.y= this->chassis-> RelativeLinearAccel().Y();
+      odometry_msg.accel.z= this->chassis-> RelativeLinearAccel().Z();
       pose_Publisher.publish(odometry_msg);
       cur_pos_x_n=last_pos_x_n;
       cur_pos_y_n=last_pos_y_n;
@@ -220,7 +209,8 @@ namespace gazebo
         if (normalized_right_angle < 0) {
             normalized_right_angle += 2 * M_PI;  // 음수 각도를 양수로 조정
         }
-
+        // double left_angvel = this->left_wheel->GetVelocity(0);
+        // double right_angvel = this->right_wheel->GetVelocity(0);
         double left_angvel = (left_angle-this->last_left_wheel_angle)/steptime; // 조인트 각속도 (라디안/초)
         double right_angvel = (right_angle-this->last_right_wheel_angle)/steptime; // 조인트 각속도 (라디안/초)
         this->last_left_wheel_angle=left_angle;

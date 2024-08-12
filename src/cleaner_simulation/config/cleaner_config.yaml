@@ -3,15 +3,15 @@ parameters:
   wheel_radius: 0.0375
   chassis_mass: 4
   chassis_radius: 0.114
-  init_target_x: 1.0
-  init_target_y: 0.1
+  init_target_x: 0.0
+  init_target_y: 0.5
   pos_threshold: 0.02
   theta_threshold: 0.01
   rotation_p_gain: 16.0
   rotation_d_gain: 2.5 
-  move_p_gain: 15.0
-  move_i_gain: 1.5
-  move_d_gain: 2.0
+  move_p_gain: 10.0
+  move_i_gain: 0.8
+  move_d_gain: 1.0
   weight1: 1.0
   weight2: 1.0
   weight3: 1.0
