@@ -48,9 +48,7 @@ namespace gazebo
         ROS_INFO("ModelPlugin for %s loaded successfully!", _model->GetName().c_str());
 
         if (!ros::isInitialized())
-        {      odometry.twist.twist.angular.x = this->chassis->RelativeAngularVel().X();
-      odometry.twist.twist.angular.y = this->chassis->RelativeAngularVel().Y();
-      odometry.twist.twist.angular.z = this->chassis->RelativeAngularVel().Z();
+        {
         int argc = 0;
         char **argv = NULL;
         ros::init(argc, argv, "robot_cleaner", ros::init_options::NoSigintHandler);

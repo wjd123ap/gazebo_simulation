@@ -520,8 +520,8 @@
 
     <model name='robot_cleaner'>
       <plugin name='cleaner' filename='libmodel_control_plugin.so'>
-        <wheel_p_gain>0.09</wheel_p_gain>
-        <wheel_i_gain>0.007</wheel_i_gain>
+        <wheel_p_gain>0.13</wheel_p_gain>
+        <wheel_i_gain>0.01</wheel_i_gain>
         <wheel_d_gain>0.0</wheel_d_gain>
         <motor_updateRateHZ>1000.00</motor_updateRateHZ>
       </plugin>
@@ -593,7 +593,7 @@
                 <kd>1</kd>
               </bullet>
             </contact>
-          </surface>
+          </surface>left_torque
         </collision>
 
         <visual name='visual'>

@@ -106,7 +106,7 @@ void odometry_callback(const cleaner_simulation::OdometryConstPtr &odometry_msg)
       right_wheelTorque_buf.pop_front();
       right_wheelTorque_buf.push_back(right_wheelTorque);
       sensory_embedding_x(left_wheelVel_buf, right_wheelVel_buf);
-      sensory_embedding_v(chassis_angvel_buf, chassis_accel_buf, left_wheelTorque_buf, right_wheelTorque_buf);
+      sensory_embedding_v( chassis_accel_buf, chassis_angvel_buf, left_wheelTorque_buf, right_wheelTorque_buf);
       AI_Update();
       // cout<<"y_x:"<<y_x<<endl;
       // cout<<"mu_x_tilde:"<<mu_x_tilde<<endl;
