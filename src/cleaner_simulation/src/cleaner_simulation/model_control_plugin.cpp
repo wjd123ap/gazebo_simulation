@@ -48,7 +48,9 @@ namespace gazebo
         ROS_INFO("ModelPlugin for %s loaded successfully!", _model->GetName().c_str());
 
         if (!ros::isInitialized())
-        {
+        {      odometry.twist.twist.angular.x = this->chassis->RelativeAngularVel().X();
+      odometry.twist.twist.angular.y = this->chassis->RelativeAngularVel().Y();
+      odometry.twist.twist.angular.z = this->chassis->RelativeAngularVel().Z();
         int argc = 0;
         char **argv = NULL;
         ros::init(argc, argv, "robot_cleaner", ros::init_options::NoSigintHandler);
@@ -166,9 +168,9 @@ namespace gazebo
       odometry.pose.pose.orientation.x = q.x();
       odometry.pose.pose.orientation.y = q.y();
       odometry.pose.pose.orientation.z = q.z();
-      odometry.twist.twist.angular.x = this->chassis_angvel[0];
-      odometry.twist.twist.angular.y = this->chassis_angvel[1];
-      odometry.twist.twist.angular.z = this->chassis_angvel[2];
+      odometry.twist.twist.angular.x = this->chassis->RelativeAngularVel().X();
+      odometry.twist.twist.angular.y = this->chassis->RelativeAngularVel().Y();
+      odometry.twist.twist.angular.z = this->chassis->RelativeAngularVel().Z();
       odometry.twist.twist.linear.x = this->chassis->WorldLinearVel().X()+cur_vel_x_n;
       odometry.twist.twist.linear.y = this->chassis->WorldLinearVel().Y()+cur_vel_y_n;
       odometry.twist.twist.linear.z = this->chassis->WorldLinearVel().Z();
