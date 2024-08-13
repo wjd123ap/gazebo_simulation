@@ -87,6 +87,8 @@ namespace gazebo
         this->right_wheel->SetProvideFeedback(true); 
         this->left_rear_wheel_link= _model->GetLink("wheel_rear_left");
         this->right_rear_wheel_link= _model->GetLink("wheel_rear_right");
+        this->left_sus_link= _model->GetLink("susp_rear_left");
+        this->right_sus_link= _model->GetLink("susp_rear_right");
         // this->left_front_wheel_link= _model->GetLink("wheel_front_left");
         // this->right_front_wheel_link= _model->GetLink("wheel_front_right");
         this->last_updatetime=0;
@@ -185,6 +187,13 @@ namespace gazebo
       cur_orientation_y_n=last_orientation_y_n;
       cur_orientation_z_n=last_orientation_z_n;
       cur_orientation_w_n=last_orientation_w_n;
+      cout<<"left_wheel_accel:"<<this->left_rear_wheel_link->WorldLinearAccel().X()<<endl;
+      cout<<"right_wheel_accel:"<<this->left_rear_wheel_link->WorldLinearAccel().X()<<endl;
+      cout<<"chassis_angvel:"<<this->chassis->RelativeAngularVel().Z()<<endl;
+      cout<<"chassis_angaccel:"<<this->chassis->RelativeAngularAccel().Z()<<endl;
+      cout<<"chassis_accel:"<<this->chassis->WorldLinearAccel().X()<<endl;
+      cout<<"left_wheel_accel1:"<<this->chassis->RelativeLinearAccel().X()-this->chassis->RelativeAngularAccel().Z()*0.114<<endl;
+      cout<<"right_wheel_accel1:"<<this->chassis->RelativeLinearAccel().X()+this->chassis->RelativeAngularAccel().Z()*0.114<<endl;
     }
 
 
@@ -295,6 +304,8 @@ namespace gazebo
     physics::LinkPtr right_front_wheel_link;
     physics::LinkPtr left_rear_wheel_link;
     physics::LinkPtr right_rear_wheel_link;
+    physics::LinkPtr left_sus_link;
+    physics::LinkPtr right_sus_link;    
     std::string right_wheel_jointName;
     std::string left_wheel_jointName;
     ros::Subscriber torque_Subscriber;
