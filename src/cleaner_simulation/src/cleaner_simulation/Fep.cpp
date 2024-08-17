@@ -40,9 +40,9 @@ Eigen::VectorXd mu_v_tilde((p+1)*(V_SIZE));
 Eigen::VectorXd y_x((p+1)*(X_SIZE));
 Eigen::VectorXd y_v((p+1)*(V_SIZE+2));
 
-double s=0.002;
+double s=0.05;
 double l_w[X_SIZE]={100, 100}; //lambda_w 
-double l_z[X_SIZE+V_SIZE+2]={100, 100, 200, 200, 50, 50}; //lambda_z
+double l_z[X_SIZE+V_SIZE+2]={150, 150, 200, 100, 10, 10}; //lambda_z
 double FreeEnergy;
 unsigned int mu_x_size,mu_v_size;
 
@@ -128,11 +128,11 @@ void AI_Update(){
     Eigen::VectorXd eps_x = D_x*mu_x_tilde-A*mu_v_tilde;
     Eigen::VectorXd eps_y1 = y_x-B_x*mu_x_tilde;
     Eigen::VectorXd eps_y2 = y_v-B_v*mu_v_tilde;
-    cout<<"y_x:"<<y_x<<endl;
-    cout<<"mu_x_tilde:"<<mu_x_tilde<<endl;
-    cout<<"test1:"<<B_v*mu_v_tilde<<endl;
+    // cout<<"y_x:"<<y_x<<endl;
+    // cout<<"mu_x_tilde:"<<mu_x_tilde<<endl;
+    // cout<<"test1:"<<B_v*mu_v_tilde<<endl;
     
-    cout<<"y_v:"<<y_v<<endl;
+    // cout<<"y_v:"<<y_v<<endl;
     double noise_term = (p+1)*log(l_w[0]*l_w[1])+(p+1)*log(l_z[0]*l_z[1])+(p+1)*log(l_z[2]*l_z[3]*l_z[4]*l_z[5]);
     Eigen::MatrixXd E = eps_x.transpose()*Pi_w*eps_x + eps_y1.transpose()*Pi_z1*eps_y1 + eps_y2.transpose()*Pi_z2*eps_y2;
     FreeEnergy = E(0,0);
@@ -140,9 +140,9 @@ void AI_Update(){
     Eigen::MatrixXd dF_dv= -A.transpose()*(Pi_w*(eps_x))-B_v.transpose()*Pi_z2*(eps_y2);
 
 
-    u_dot.segment(0,mu_x_size)= D_x*mu_x_tilde-dF_dx;
-    u_dot.segment(mu_x_size,mu_v_size)= D_v*mu_v_tilde-dF_dv;
-    Eigen::VectorXd delta_u = U*u_dot;
+    u_dot.segment(0,mu_x_size)= D_x*mu_x_tilde-0.005*dF_dx;
+    u_dot.segment(mu_x_size,mu_v_size)= D_v*mu_v_tilde-0.005*dF_dv;
+    Eigen::VectorXd delta_u = dt*u_dot;
     mu_x_tilde = mu_x_tilde+delta_u.segment(0,mu_x_size);
     mu_v_tilde = mu_v_tilde+delta_u.segment(mu_x_size,mu_v_size);
 }

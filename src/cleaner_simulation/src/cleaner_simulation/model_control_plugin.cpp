@@ -19,7 +19,7 @@
 #include <Eigen/Dense>
 // #include
 using namespace std;
-const double stall_torque=(77.5/32.5);
+const double stall_torque=(50/32.5);
 const double alpha=0.5;
 const  double odometry_timer_interval = (1.0)/200;
 std::mt19937 gen1(123456); // 난수 엔진 초기화
@@ -187,13 +187,13 @@ namespace gazebo
       cur_orientation_y_n=last_orientation_y_n;
       cur_orientation_z_n=last_orientation_z_n;
       cur_orientation_w_n=last_orientation_w_n;
-      cout<<"left_wheel_accel:"<<this->left_rear_wheel_link->WorldLinearAccel().X()<<endl;
-      cout<<"right_wheel_accel:"<<this->left_rear_wheel_link->WorldLinearAccel().X()<<endl;
-      cout<<"chassis_angvel:"<<this->chassis->RelativeAngularVel().Z()<<endl;
-      cout<<"chassis_angaccel:"<<this->chassis->RelativeAngularAccel().Z()<<endl;
-      cout<<"chassis_accel:"<<this->chassis->WorldLinearAccel().X()<<endl;
-      cout<<"left_wheel_accel1:"<<this->chassis->RelativeLinearAccel().X()-this->chassis->RelativeAngularAccel().Z()*0.114<<endl;
-      cout<<"right_wheel_accel1:"<<this->chassis->RelativeLinearAccel().X()+this->chassis->RelativeAngularAccel().Z()*0.114<<endl;
+      // cout<<"left_wheel_accel:"<<this->left_sus_link->WorldLinearAccel().X()<<endl;
+      // cout<<"right_wheel_accel:"<<this->left_sus_link->WorldLinearAccel().X()<<endl;
+      // cout<<"chassis_angvel:"<<this->chassis->RelativeAngularVel().Z()<<endl;
+      // cout<<"chassis_angaccel:"<<this->chassis->RelativeAngularAccel().Z()<<endl;
+      // cout<<"chassis_accel:"<<this->chassis->WorldLinearAccel().X()<<endl;
+      // cout<<"left_wheel_accel1:"<<this->chassis->RelativeLinearAccel().X()-this->chassis->RelativeAngularAccel().Z()*0.114<<endl;
+      // cout<<"right_wheel_accel1:"<<this->chassis->RelativeLinearAccel().X()+this->chassis->RelativeAngularAccel().Z()*0.114<<endl;
     }
 
 
@@ -249,7 +249,7 @@ namespace gazebo
         double left_angvel_sign = std::copysign(1.0, left_angvel); 
         double right_angvel_sign = std::copysign(1.0, right_angvel); 
         if (left_torque_sign*left_angvel_sign>0){
-          double left_torque=max((-1/32.5)*((abs(left_angvel*60)/(2*M_PI))-77.5),0.0);
+          double left_torque=max((-1/32.5)*((abs(left_angvel*60)/(2*M_PI))-50),0.0);
           // gzmsg << "left_torque1: " << this->left_torque <<std::endl;
           this->left_torque=min(left_torque,abs(this->left_torque));
           this->left_torque=(this->left_torque)*left_torque_sign;
@@ -260,7 +260,7 @@ namespace gazebo
           // gzmsg << "left_torque: " << this->left_torque  << ", left_angvel: " << left_angvel<<std::endl;
 
         if (right_torque_sign*right_angvel_sign>0){
-          double right_torque=max((-1/32.5)*((abs(right_angvel*60)/(2*M_PI))-77.5),0.0);
+          double right_torque=max((-1/32.5)*((abs(right_angvel*60)/(2*M_PI))-50),0.0);
           // gzmsg << "right_torque1: " << this->right_torque <<std::endl;
 
           this->right_torque=min(right_torque,abs(this->right_torque));
