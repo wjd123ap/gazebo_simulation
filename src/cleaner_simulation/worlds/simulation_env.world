@@ -1,17 +1,18 @@
 <sdf version='1.7'>
   <world name='default'>
     <plugin name='cleaner_world' filename='libworld_control_plugin.so'>
-      <physics type='ode'>
-        <thread_position_correction>1</thread_position_correction>
-        <island_threads>3</island_threads>
-        <real_time_update_rate>0</real_time_update_rate>
-        <max_step_size>0.0005</max_step_size>
+      <physics type="ode" name="unthrottled" default="true">
+        <real_time_update_rate>5000.0</real_time_update_rate>
+        <real_time_factor>1.0</real_time_factor>
+        <max_step_size>0.0002</max_step_size>
         <ode>
           <solver>
-            <iters>100</iters>
+            <thread_position_correction>1</thread_position_correction>
+            <island_threads>10</island_threads>
+            <iters>400</iters>
+            <sor>0.1</sor>
           </solver>
           <constraints>
-            <cfm>0.00001</cfm>
             <erp>0.01</erp>
           </constraints>
         </ode>
@@ -342,8 +343,227 @@
 
     </model>
 
+    <model name='hanger1'>
+      <pose>1.4 0.18 0.00 0 -0 0</pose>
+      <link name='body'>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>1</kinematic>
+        <pose>0 0 0 0 -0 0</pose>
+        <gravity>1</gravity>
+        <inertial>
+          <mass>1</mass>
+          <pose>0 0 0 0 -0 0</pose>
+          <inertia>
+            <ixx>1</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1</iyy>
+            <iyz>0</iyz>
+            <izz>1</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/hanger10.stl</uri>
+              <scale>0.001 0.001 0.001</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+             <ode>
+                <mu>0.2</mu>
+                <mu2>0.2</mu2>
+                <fdir1>0 0 0</fdir1>
+                <slip1>0.08</slip1>
+                <slip2>0.08</slip2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/hanger10.stl</uri>
+              <scale>0.001 0.001 0.001</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <shader type='pixel'>
+              <normal_map>__default__</normal_map>
+            </shader>
+            <script>
+              <name>ModelPreview_1::body::visual_MATERIAL_</name>
+              <uri>__default__</uri>
+            </script>
+            <ambient>0 0 0 1</ambient>
+            <diffuse>0 0 0 1</diffuse>
+            <specular>0 0 0 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+          <pose>0 0 0 0 -0 0</pose>
+          <transparency>0</transparency>
+          <cast_shadows>1</cast_shadows>
+        </visual>
+      </link>
+      <static>1</static>
+      <allow_auto_disable>1</allow_auto_disable>
+    </model>
+
+    <model name='hanger2'>
+      <pose>0.35 1.0 0.00 0 -0 0</pose>
+      <link name='body'>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>1</kinematic>
+        <pose>0 0 0 0 -0 0</pose>
+        <gravity>1</gravity>
+        <inertial>
+          <mass>1</mass>
+          <pose>0 0 0 0 -0 0</pose>
+          <inertia>
+            <ixx>1</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1</iyy>
+            <iyz>0</iyz>
+            <izz>1</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/hanger15.stl</uri>
+              <scale>0.001 0.001 0.001</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+             <ode>
+                <mu>0.2</mu>
+                <mu2>0.2</mu2>
+                <fdir1>0 0 0</fdir1>
+                <slip1>0.08</slip1>
+                <slip2>0.08</slip2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/hanger15.stl</uri>
+              <scale>0.001 0.001 0.001</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <shader type='pixel'>
+              <normal_map>__default__</normal_map>
+            </shader>
+            <script>
+              <name>ModelPreview_1::body::visual_MATERIAL_</name>
+              <uri>__default__</uri>
+            </script>
+            <ambient>0 0 0 1</ambient>
+            <diffuse>0 0 0 1</diffuse>
+            <specular>0 0 0 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+          <pose>0 0 0 0 -0 0</pose>
+          <transparency>0</transparency>
+          <cast_shadows>1</cast_shadows>
+        </visual>
+      </link>
+      <static>1</static>
+      <allow_auto_disable>1</allow_auto_disable>
+    </model>
+
+    <model name='plate1'>
+      <pose>0.35 0.15 -0.02 0 -0 0</pose>
+      <link name='body'>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>1</kinematic>
+        <pose>0 0 0 0 -0 0</pose>
+        <gravity>1</gravity>
+        <inertial>
+          <mass>1</mass>
+          <pose>0 0 0 0 -0 0</pose>
+          <inertia>
+            <ixx>1</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1</iyy>
+            <iyz>0</iyz>
+            <izz>1</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/plate50.stl</uri>
+              <scale>0.001 0.001 0.001</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+             <ode>
+                <mu>0.2</mu>
+                <mu2>0.2</mu2>
+                <fdir1>0 0 0</fdir1>
+                <slip1>0.08</slip1>
+                <slip2>0.08</slip2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>file:///home/jeong/gazebo_simulation/src/cleaner_simulation/cadfile/plate50.stl</uri>
+              <scale>0.001 0.001 0.001</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <shader type='pixel'>
+              <normal_map>__default__</normal_map>
+            </shader>
+            <script>
+              <name>ModelPreview_1::body::visual_MATERIAL_</name>
+              <uri>__default__</uri>
+            </script>
+            <ambient>0 0 0 1</ambient>
+            <diffuse>0 0 0 1</diffuse>
+            <specular>0 0 0 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+          <pose>0 0 0 0 -0 0</pose>
+          <transparency>0</transparency>
+          <cast_shadows>1</cast_shadows>
+        </visual>
+      </link>
+      <static>1</static>
+      <allow_auto_disable>1</allow_auto_disable>
+    </model>
+
     <model name='scales'>
-      <pose>0.5 0.0 0.016 1.57079632679 -0 0</pose>
+      <pose>1.5 0.0 0.016 1.57079632679 -0 0</pose>
       <link name='body'>
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
@@ -414,7 +634,7 @@
     </model>
 
     <model name='door_frame'>
-      <pose>0.35 2 -0.020 0 0 0</pose>
+      <pose>0.5 3.0 -0.01 0 0 0</pose>
       <link name='body'>
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
@@ -520,7 +740,7 @@
 
     <model name='robot_cleaner'>
       <plugin name='cleaner' filename='libmodel_control_plugin.so'>
-        <wheel_p_gain>0.09</wheel_p_gain>
+        <wheel_p_gain>0.9</wheel_p_gain>
         <wheel_i_gain>0.007</wheel_i_gain>
         <wheel_d_gain>0.0</wheel_d_gain>
         <motor_updateRateHZ>1000.00</motor_updateRateHZ>
@@ -552,8 +772,8 @@
           <surface>
             <friction>
               <ode>
-                <mu>0.3</mu>
-                <mu2>0.3</mu2>
+                <mu>0.35</mu>
+                <mu2>0.35</mu2>
                 <fdir1>0 0 0</fdir1>
                 <slip1>0.05</slip1>
                 <slip2>0.05</slip2>
@@ -593,7 +813,7 @@
                 <kd>1</kd>
               </bullet>
             </contact>
-          </surface>left_torque
+          </surface>
         </collision>
 
         <visual name='visual'>
@@ -842,8 +1062,8 @@
                 <mu>1.0</mu>
                 <mu2>1.0</mu2>
                 <fdir1>0 0 0</fdir1>
-                <slip1>0.01</slip1>
-                <slip2>0.01</slip2>
+                <slip1>0.00</slip1>
+                <slip2>0.00</slip2>
               </ode>
               <torsional>
                 <coefficient>1</coefficient>
@@ -946,8 +1166,8 @@
                 <mu>1.0</mu>
                 <mu2>1.0</mu2>
                 <fdir1>0 0 0</fdir1>
-                <slip1>0.01</slip1>
-                <slip2>0.01</slip2>
+                <slip1>0.00</slip1>
+                <slip2>0.00</slip2>
               </ode>
               <torsional>
                 <coefficient>1</coefficient>
@@ -1050,8 +1270,8 @@
                 <mu>1.0</mu>
                 <mu2>1.0</mu2>
                 <fdir1>0 0 0</fdir1>
-                <slip1>0.02</slip1>
-                <slip2>0.02</slip2>
+                <slip1>0.00</slip1>
+                <slip2>0.00</slip2>
               </ode>
               <torsional>
                 <coefficient>1</coefficient>
