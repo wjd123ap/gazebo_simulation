@@ -14,14 +14,15 @@
 #include <cmath>
 #include <algorithm>
 #include <sensor_msgs/JointState.h>
+#include <std_msgs/Bool.h>
 #include <random>
 #include <Eigen/Core>
 #include <Eigen/Dense>
 // #include
 using namespace std;
-const double stall_torque=(50/32.5);
-const double alpha=0.5;
-const  double odometry_timer_interval = (1.0)/200;
+#define stall_torque (50.0/32.5)
+#define alpha 0.5
+#define odometry_timer_interval 0.005
 std::mt19937 gen1(123456); // 난수 엔진 초기화
 std::mt19937 gen2(12145); // 난수 엔진 초기화
 
@@ -109,7 +110,7 @@ namespace gazebo
         this->wheelvel_Subscriber = this->rosNode->subscribe("/wheelvel_control", 10, &ModelControlPlugin::OnWheelVelMsg, this);
         this->imu_Subscriber = this->rosNode->subscribe("/robot_cleaner/imu", 10, &ModelControlPlugin::OnImuMsg, this);       
         this->pose_Publisher = this->rosNode->advertise<cleaner_simulation::Odometry>("chassis_pose", 1000);
-        
+        this->stop_Subscriber = this -> rosNode->subscribe("/stop",10,&ModelControlPlugin::OnStopMsg,this);
         this->wheelstate_Publisher = this->rosNode->advertise<sensor_msgs::JointState>("wheel_state", 1000);
         
         motor_timer = rosNode->createTimer(ros::Duration(this->stepsize), &ModelControlPlugin::OnWheelState, this);
@@ -128,11 +129,16 @@ namespace gazebo
         this->right_torque=msg->right_torque;
 
     }
+    void OnStopMsg(const std_msgs::Bool &msg)
+    {
+        this->stop = msg.data;
+    }
 
     void OnWheelVelMsg(const cleaner_simulation::WheelVelConstPtr &msg)
     {
         this->desired_left_angvel=msg->left;
         this->desired_right_angvel=msg->right;
+
     }
 
     void OnImuMsg(const sensor_msgs::ImuConstPtr &msg)
@@ -233,7 +239,14 @@ namespace gazebo
         // wheel_velocity
         wheelMsgs.velocity.push_back(left_angvel);
         wheelMsgs.velocity.push_back(right_angvel);
-
+        if (stop){
+          this->left_torque = 0;
+          this->right_torque = 0;
+          wheelMsgs.effort.push_back(0);
+          wheelMsgs.effort.push_back(0);
+          wheelstate_Publisher.publish(wheelMsgs);
+          return;
+        }
         // gzmsg << "desired_left_angvel: " << this->desired_left_angvel<< ",desired_right_angvel: " << this->desired_right_angvel<<std::endl;
         double left_error = left_angvel-this->desired_left_angvel;
         double right_error = right_angvel-this->desired_right_angvel;
@@ -311,6 +324,7 @@ namespace gazebo
     ros::Subscriber torque_Subscriber;
     ros::Subscriber wheelvel_Subscriber;
     ros::Subscriber imu_Subscriber;
+    ros::Subscriber stop_Subscriber;
     ros::Publisher pose_Publisher;
     ros::Publisher wheelstate_Publisher;
     ros::Timer odometry_timer;
@@ -331,7 +345,7 @@ namespace gazebo
     double wheel_i;
     double wheel_d;
     double stepsize;
-
+    bool stop=false;
   };
 
   GZ_REGISTER_MODEL_PLUGIN(ModelControlPlugin)
