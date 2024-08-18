@@ -11,7 +11,7 @@
 #include "cleaner_simulation/Odometry.h"
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/JointState.h>
-
+#include <std_msgs/Bool.h>
 #include <std_msgs/Float64.h>
 
 using namespace std;
@@ -27,6 +27,7 @@ Eigen::Vector2d target_pos;
 
 ros::Publisher pub_wheelvel;
 ros::Publisher pub_FE;
+ros::Publisher pub_STOP;
 double wheel_radius,chassis_radius,chassis_mass,chassis_inertia;
 
 double desired_velocity, pos_threshold,theta_threshold,move_p_gain,move_i_gain,move_d_gain,rotation_p_gain,rotation_d_gain;
@@ -59,13 +60,12 @@ double calculate_clockwise_difference(double theta, double desired_theta) {
 }
 
 void stop(){
-  cleaner_simulation::WheelVel wheelvel_msg;
-  wheelvel_msg.left=0;
-  wheelvel_msg.right=0;
-  target_on=false;
 
-  integral_error_theta=0;
-  pub_wheelvel.publish(wheelvel_msg);
+  target_on=false;
+  std_msgs::Bool stop_msg;
+  stop_msg.data = true;
+  pub_STOP.publish(stop_msg);
+  
 }
 
 void change_target_pos(Eigen::Vector2d& current_pos,double d,double theta) {
@@ -111,10 +111,12 @@ void odometry_callback(const cleaner_simulation::OdometryConstPtr &odometry_msg)
       right_wheelTorque_buf.pop_front();
       right_wheelTorque_buf.push_back(right_wheelTorque);
 
-
-      // cout<<"tilt_angle:"<<tilt_angle*180/M_PI<<endl;
-      if ((target_pos-chassis_position2d).norm()<pos_threshold)
+      double target_distance=(target_pos-chassis_position2d).norm();
+      if (target_distance<pos_threshold && abs(chassis_velocity(0))<0.01)
       {
+        previous_error_theta=0;
+        integral_error_theta=0;
+        target_on=false;
         stop();
         return;
       }
@@ -133,7 +135,6 @@ void odometry_callback(const cleaner_simulation::OdometryConstPtr &odometry_msg)
 
 
 
-      // cout<<"error_theta:"<<error_theta<<endl;
       if ((abs(error_theta)>M_PI/36)&&(control_type==MOVE)){
         control_type=ROTATION;
         previous_error_theta=error_theta;
@@ -206,6 +207,10 @@ void odometry_callback(const cleaner_simulation::OdometryConstPtr &odometry_msg)
               command_angvel = move_p_gain * error_theta + move_i_gain * integral_error_theta + move_d_gain * error_theta_dot;
               desired_left_angvel = constant_wheelVel - command_angvel;
               desired_right_angvel = constant_wheelVel + command_angvel;
+              if (target_distance<pos_threshold){
+                desired_left_angvel = - command_angvel;
+                desired_right_angvel = + command_angvel;
+              }
               break;
           case MOVE_BACK:
               error_theta_dot = (error_theta-previous_error_theta);
@@ -214,6 +219,10 @@ void odometry_callback(const cleaner_simulation::OdometryConstPtr &odometry_msg)
               command_angvel = move_p_gain * error_theta + move_i_gain * integral_error_theta + move_d_gain * error_theta_dot;
               desired_left_angvel = -(constant_wheelVel + command_angvel);
               desired_right_angvel = -(constant_wheelVel - command_angvel);
+              if (target_distance<pos_threshold){
+                desired_left_angvel = - command_angvel;
+                desired_right_angvel =  command_angvel;
+              }
               break;
           default:
               break;
@@ -266,8 +275,9 @@ int main(int argc, char** argv) {
   target_pos(1)=init_target_y;
   ros::Subscriber sub_odometry = nh.subscribe("/robot_cleaner/chassis_pose",2000,odometry_callback, ros::TransportHints().tcpNoDelay());
   ros::Subscriber sub_wheelstate = nh.subscribe("/robot_cleaner/wheel_state",2000,wheel_state_callback, ros::TransportHints().tcpNoDelay());
-  pub_wheelvel = nh.advertise< cleaner_simulation::WheelVel>("/wheelvel_control", 1000);
-  pub_FE = nh.advertise<std_msgs::Float64>("/free_energy",1000);
+  pub_wheelvel = nh.advertise< cleaner_simulation::WheelVel>("/wheelvel_control", 200);
+  pub_FE = nh.advertise<std_msgs::Float64>("/free_energy",200);
+  pub_STOP = nh.advertise< std_msgs::Bool>("/stop", 10);
 
   constant_wheelVel=desired_velocity/wheel_radius;
 
