@@ -34,14 +34,15 @@ namespace gazebo
       transport::PublisherPtr physicsPub =
         node->Advertise<msgs::Physics>("~/physics");
       msgs::Physics physicsMsg;
+      physicsMsg.set_solver_type("quick");
       physicsMsg.set_iters(400);
       physicsMsg.set_sor(0.1);
       physicsMsg.set_erp(0.01);
-
+      physicsMsg.set_real_time_factor(1.0);
       physicsMsg.set_max_step_size(0.0002);
       physicsMsg.set_real_time_update_rate(5000);
       physicsMsg.set_contact_surface_layer(0.001);
-      // physicsMsg.set_solver_type("world");
+
       physicsPub->Publish(physicsMsg);
 
 
