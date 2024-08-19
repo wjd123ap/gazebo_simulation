@@ -1,0 +1,24 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/hyungseok/catkin_ws/devel/include/**",
+        "/home/hyungseok/gazebo_simulation/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/hyungseok/catkin_ws/src/beginner_tutorials/include/**",
+        "/home/hyungseok/gazebo_simulation/src/cleaner_simulation/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

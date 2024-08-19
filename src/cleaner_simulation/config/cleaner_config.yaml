@@ -4,8 +4,8 @@ parameters:
   chassis_mass: 4
   chassis_inertia: 0.12
   chassis_radius: 0.114
-  init_target_x: 0.0
-  init_target_y: 1.0
+  init_target_x: 1.0
+  init_target_y: 0.0
   pos_threshold: 0.015
   theta_threshold: 0.01
   rotation_p_gain: 25
