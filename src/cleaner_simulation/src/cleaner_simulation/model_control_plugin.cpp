@@ -103,8 +103,8 @@ namespace gazebo
         left_error_integral=0;
         right_error_integral=0;
 
-        this->left_velocityPID.Init(this->wheel_p, this->wheel_i, this->wheel_d, 1.0, -1.0, stall_torque, -stall_torque);
-        this->right_velocityPID.Init(this->wheel_p, this->wheel_i, this->wheel_d, 1.0, -1.0, stall_torque, -stall_torque);
+        this->left_velocityPID.Init(this->wheel_p, this->wheel_i, this->wheel_d, 0.5, -0.5, stall_torque, -stall_torque);
+        this->right_velocityPID.Init(this->wheel_p, this->wheel_i, this->wheel_d, 0.5, -0.5, stall_torque, -stall_torque);
         std::cout << " Joint Name: " << this->right_wheel->GetName() << ", Type: " << this->right_wheel->GetType() << std::endl;
         this->torque_Subscriber = this->rosNode->subscribe("/robot_control", 10, &ModelControlPlugin::OnTorqueMsg, this);
         this->wheelvel_Subscriber = this->rosNode->subscribe("/wheelvel_control", 10, &ModelControlPlugin::OnWheelVelMsg, this);

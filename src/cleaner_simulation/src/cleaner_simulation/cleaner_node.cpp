@@ -139,7 +139,7 @@ void odometry_callback(const cleaner_simulation::OdometryConstPtr &odometry_msg)
         control_type=ROTATION;
         previous_error_theta=error_theta;
       }
-
+        // cout<<"control_type:"<<control_type<<endl;
       if (control_type != ROTATION){
         double residual_velocity = chassis_velocity2d.norm() - ((left_wheelVel + right_wheelVel) * wheel_radius / 2);
         double residual_angvel = chassis_angular(2)- ((right_wheelVel - left_wheelVel ) * wheel_radius / (2*chassis_radius));
@@ -155,12 +155,12 @@ void odometry_callback(const cleaner_simulation::OdometryConstPtr &odometry_msg)
           free_energy_buf.pop();
           average_FE = tmp_FE_sum / buffer_size;
         }
-        // cout<<"control_type:"<<control_type<<endl;
+
         // cout<<"free_energy:"<<free_energy<<endl;
         // cout<<"average_FE:"<<average_FE<<endl;
         if ((average_FE>FE_threshold)&&(control_type != MOVE_BACK)){
           change_target_pos(chassis_position2d,1.0,theta);
-          previous_error_theta=error_theta;
+          previous_error_theta=0;
           integral_error_theta=0;
 
           moveback_stop=false;
@@ -168,7 +168,7 @@ void odometry_callback(const cleaner_simulation::OdometryConstPtr &odometry_msg)
         }
         // cout<<"average_FE:"<<average_FE<<endl;
         if ((control_type == MOVE_BACK)&&(average_FE<MOVE_BACK_threshold)&&(!moveback_stop)){
-          change_target_pos(chassis_position2d,-0.05,theta);
+          change_target_pos(chassis_position2d,-0.1,theta);
           moveback_stop=true;
           return;
         }
@@ -217,8 +217,10 @@ void odometry_callback(const cleaner_simulation::OdometryConstPtr &odometry_msg)
               integral_error_theta += error_theta;
               previous_error_theta = error_theta;
               command_angvel = move_p_gain * error_theta + move_i_gain * integral_error_theta + move_d_gain * error_theta_dot;
-              desired_left_angvel = -(constant_wheelVel + command_angvel);
-              desired_right_angvel = -(constant_wheelVel - command_angvel);
+              desired_left_angvel = -((constant_wheelVel-1.0) + command_angvel);
+              desired_right_angvel = -((constant_wheelVel-1.0) - command_angvel);
+              // cout<<"desired_left_angvel:"<<desired_left_angvel<<endl;
+              // cout<<"desired_right_angvel:"<<desired_right_angvel<<endl;
               if (target_distance<pos_threshold){
                 desired_left_angvel = - command_angvel;
                 desired_right_angvel =  command_angvel;

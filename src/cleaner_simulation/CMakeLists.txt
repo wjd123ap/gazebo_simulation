@@ -156,6 +156,7 @@ target_link_libraries(cleaner_node Fep ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 add_library(world_control_plugin
   src/${PROJECT_NAME}/world_control_plugin.cpp
 )
+
 add_library(model_control_plugin
   src/${PROJECT_NAME}/model_control_plugin.cpp
 )

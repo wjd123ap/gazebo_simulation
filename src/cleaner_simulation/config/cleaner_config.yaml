@@ -2,21 +2,19 @@ parameters:
   desired_velocity: 0.15
   wheel_radius: 0.0375
   chassis_mass: 4
-  chassis_inertia: 0.12
   chassis_radius: 0.114
-  init_target_x: 1.0
+  init_target_x: 2.0
   init_target_y: 0.0
-  pos_threshold: 0.015
+  pos_threshold: 0.02
   theta_threshold: 0.01
-  rotation_p_gain: 25
+  rotation_p_gain: 25.0
   rotation_d_gain: 5.0 
   move_p_gain: 8.0
-  move_i_gain: 0.5
-  move_d_gain: 0.1
+  move_i_gain: 0.3
+  move_d_gain: 0.15
   weight1: 1.0
   weight2: 1.0
   weight3: 1.0
-  weight4: 0.5
-  buffer_size: 8
-  FE_threshold: 1.5
-  MOVE_BACK_threshold: 0.4
+  buffer_size: 10
+  FE_threshold: 20.0
+  MOVE_BACK_threshold: 0.5
