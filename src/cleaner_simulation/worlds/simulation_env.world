@@ -168,7 +168,7 @@
     </gui>
 
     <model name='chair'>
-      <pose>1.0 -0.4 -0.01 0 0 -1.57</pose>
+      <pose>0.5 -0.3 -0.015 0 0 -1.57</pose>
       <link name='body'>   
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
@@ -272,7 +272,7 @@
 
     <model name='chair_frame1'>
         <!-- <pose>1.20087 0 0.013622 1.57079632679 -0 0</pose> -->
-      <pose>3.6 -0.13 -0.015 0 -0 -1.39626</pose>
+      <pose>1.4 -0.0 -0.01 0 -0 0</pose>
       <link name='body'>
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
@@ -344,7 +344,7 @@
     </model>
 
     <model name='hanger1'>
-      <pose>1.4 0.18 0.00 0 -0 0</pose>
+      <pose>1.4 2.18 0.00 0 -0 0</pose>
       <link name='body'>
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
@@ -751,9 +751,9 @@
       <link name='chassis'>
 
         <self_collide>0</self_collide>
-        <pose>0 0 0.018 0 -0 0</pose>
+        <pose>0.0 0 0.01 0 -0 0</pose>
         <inertial>
-          <pose>0.0 0 0.054838554 0 -0 0</pose>
+          <pose>0.02 0 0.04 0 -0 0</pose>
           <mass>4</mass>
           <inertia>
             <ixx>2.7118881e-02</ixx>
@@ -945,7 +945,7 @@
 
 
       <link name='caster'>
-        <pose>-0.065 0.0 0.018 0 -0 0</pose>
+        <pose>0.085 0.0 0.02 0 -0 0</pose>
         <inertial>
           <pose>-3.2585968e-03  0.0000000e+00 -5.5926975e-03 0 -0 0</pose>
           <mass>0.03</mass>
@@ -1038,13 +1038,13 @@
       </joint>
 
       <link name='wheel_caster'>
-        <pose>-0.07375 0.0 0.007 -1.57079632679 -0 0</pose>
+        <pose>0.077 0.0 0.006 -1.57079632679 -0 0</pose>
         <inertial>
           <pose>0 0 0 0 -0 0</pose>
           <mass>0.01</mass>
           <inertia>
-            <ixx>1.5250000000000002e-07</ixx>
-            <iyy>1.5250000000000002e-07</iyy>
+            <ixx>1.5220000000000002e-07</ixx>
+            <iyy>1.5220000000000002e-07</iyy>
             <izz>2.4500000000000004e-07</izz>
             <ixy>0</ixy>
             <ixz>0</ixz>
@@ -1054,8 +1054,8 @@
         <collision name='collision'>
           <geometry>
             <cylinder>
-              <radius>0.007</radius>
-              <length>0.006</length>
+              <radius>0.006</radius>
+              <length>0.01</length>
             </cylinder>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -1105,8 +1105,8 @@
         <visual name='visual'>
           <geometry>
             <cylinder>
-              <radius>0.007</radius>
-              <length>0.006</length>
+              <radius>0.006</radius>
+              <length>0.01</length>
             </cylinder>
 
           </geometry>
@@ -1140,7 +1140,7 @@
         
       </joint>
 
-
+<!-- 
       <link name='wheel_front_left'>
         <pose>0.065 0.111 0.01 -1.57079632679 -0 0</pose>
         <inertial>
@@ -1345,10 +1345,10 @@
             <spring_stiffness>0</spring_stiffness>
           </dynamics>
         </axis>
-      </joint>
+      </joint> -->
 
       <link name='wheel_rear_right'>
-        <pose>0 -0.114 0.0375 -1.57079632679 0 0</pose>
+        <pose>0.0 -0.114 0.0375 -1.57079632679 0 0</pose>
         <inertial>
           <mass>0.046</mass>
           <inertia>
@@ -1403,7 +1403,7 @@
               <ode>
                 <soft_cfm>0</soft_cfm>
                 <soft_erp>0</soft_erp>
-                <kp>10000</kp>
+                <kp>80000</kp>
                 <kd>8</kd>
                 <max_vel>10.0</max_vel>
                 <min_depth>0</min_depth>
@@ -1444,7 +1444,7 @@
       </link>
 
       <link name="susp_rear_right">
-        <pose>0 -0.114 0.0375  0 0 0</pose>
+        <pose>0.0 -0.114 0.0375  0 0 0</pose>
         <inertial>
           <mass>0.046</mass>
           <inertia>
@@ -1479,7 +1479,7 @@
       </link>
 
       <link name='wheel_rear_left'>
-        <pose>0 0.114 0.0375 -1.57079632679 0 0</pose>
+        <pose>0.0 0.114 0.0375 -1.57079632679 0 0</pose>
         <inertial>
           <mass>0.046</mass>
           <inertia>
@@ -1534,7 +1534,7 @@
               <ode>
                 <soft_cfm>0</soft_cfm>
                 <soft_erp>0</soft_erp>
-                <kp>10000</kp>
+                <kp>80000</kp>
                 <kd>8</kd>
                 <max_vel>10.0</max_vel>
                 <min_depth>0.00</min_depth>
@@ -1574,7 +1574,7 @@
       </link>
 
       <link name="susp_rear_left">
-        <pose>0 0.114 0.0375  0 0 0</pose>
+        <pose>0.0 0.114 0.0375  0 0 0</pose>
         <inertial>
           <mass>0.046</mass>
           <inertia>
@@ -1614,14 +1614,14 @@
       <axis>
         <xyz>0 0 1</xyz>
           <limit>
-            <lower>-0.03</lower>
-            <upper>0.03</upper>
+            <lower>-0.04</lower>
+            <upper>0.00</upper>
           </limit>
         <dynamics>
-          <friction>1</friction>
-          <damping>10</damping>
-          <spring_stiffness>150</spring_stiffness>
-          <spring_reference>-0.06</spring_reference>
+          <friction>3</friction>
+          <damping>25</damping>
+          <spring_stiffness>200</spring_stiffness>
+          <spring_reference>-0.07</spring_reference>
         </dynamics>
       </axis>
       <physics>
@@ -1645,8 +1645,8 @@
         <axis>
         <xyz>0 0 1</xyz>
           <limit>
-            <lower>-0.03</lower>
-            <upper>0.03</upper>
+            <lower>-0.04</lower>
+            <upper>0.00</upper>
           </limit>
         <xyz>1 0 0</xyz>
           <limit>
@@ -1659,10 +1659,10 @@
             <upper>0</upper>
           </limit>
           <dynamics>
-            <friction>1</friction>
-            <damping>10</damping>
-            <spring_stiffness>150</spring_stiffness>
-          <spring_reference>-0.06</spring_reference>
+            <friction>3</friction>
+            <damping>25</damping>
+            <spring_stiffness>200</spring_stiffness>
+          <spring_reference>-0.07</spring_reference>
           </dynamics>
         </axis>
       <physics>
